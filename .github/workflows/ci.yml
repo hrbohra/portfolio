@@ -1,0 +1,44 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Content lint (editorial rules, ADR 0006)
+        run: node scripts/content-lint.mjs
+
+      - name: Facts guard (metrics bank consistency)
+        run: node scripts/facts-check.mjs
+
+      - name: Build (Zod frontmatter validation runs here)
+        run: npm run build
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Internal link check (exported HTML)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --root-dir ${{ github.workspace }}/out --no-progress "out/**/*.html"
+          fail: true
+
+      - name: Lighthouse CI (floor assertions, ADR 0006)
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true

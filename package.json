@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint:content": "node scripts/content-lint.mjs",
+    "check:facts": "node scripts/facts-check.mjs",
+    "check": "npm run lint:content && npm run check:facts && npm run typecheck"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

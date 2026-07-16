@@ -1,0 +1,26 @@
+{
+  "_comment": "Canonical metric tokens extracted from the raw master CV metrics bank. facts-check.mjs fails CI if any disappears from content/facts.ts. Extend when a new fact is approved; never trim to make CI pass.",
+  "tokens": [
+    "chains: 7",
+    "vulnsBefore: 60",
+    "vulnsAfter: 8",
+    "USDC to WETH on Base",
+    "skus: 6434",
+    "supplierBrands: 12",
+    "catalogueMb: 17.5",
+    "cartFirstLoadKb: 221",
+    "products: 1015",
+    "images: 9968",
+    "concurrencyCap: 4",
+    "models: 192",
+    "variants: 3075",
+    "images: 7975",
+    "categories: 7",
+    "pytests: 17",
+    "e2eAssertions: 21",
+    "2,900+ entries/sec",
+    "seoScore: 100",
+    "25/25 green in CI",
+    "18s to 2s"
+  ]
+}
