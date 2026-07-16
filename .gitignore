@@ -5,3 +5,5 @@ media-inbox/
 *.tsbuildinfo
 next-env.d.ts
 .env*
+
+.vercel
