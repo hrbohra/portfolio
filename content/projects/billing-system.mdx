@@ -1,0 +1,65 @@
+---
+kind: project
+slug: billing-system
+title: "Cwtch Comfort, the billing and operations system"
+strap: "The same retailer's paper workflow, from handwritten bills to cash ledger, turned into software the staff use every day."
+tier: 1
+role: "Freelance software engineer, Apr 2026 to present"
+stack: ["Python 3.12", FastAPI, SQLite, Jinja2, HTMX, Alpine.js, pytest]
+tags: [internal-tools, live-product, operations]
+featured: false
+metrics:
+  - { label: "Automated tests", value: "17 pytest + a 21-assertion scripted end-to-end" }
+  - { label: "Branches served", value: "2, with independent invoice sequences" }
+media:
+  - { id: billing-lifecycle, kind: video, status: pending, capture_note: "60-90s lifecycle walkthrough, seeded fake data" }
+  - { id: billing-invoice-print, kind: image, status: pending, capture_note: "A4 print preview, fake customer" }
+  - { id: billing-state-machine, kind: diagram, status: pending, capture_note: "Lifecycle state machine SVG" }
+cases: []
+confidentiality: cwtch-admin-fake-data
+---
+
+## What it is
+
+<Plain>
+The same furniture retailer ran its daily business on paper: bills written by hand, supplier
+orders remembered, deliveries juggled, cash counted into a book. I built the system that now
+runs that whole flow across both branches, from the moment a customer is billed to the moment
+the cash ledger balances.
+</Plain>
+<Eng>
+A FastAPI and SQLite operations system covering the full retail lifecycle: bill, to-be-ordered
+supplier batching, ordered, received, delivery scheduling, delivered, paid, cash ledger.
+Server-rendered with Jinja2 and HTMX/Alpine, no JavaScript build step. Multi-branch invoice
+sequencing (CC-T-#### and CC-P-####), VAT handling, A4 print-CSS invoices engineered for
+multi-page flow, complaint tracking, PIN-based admin users, and a public order tracker.
+</Eng>
+
+## How it was made
+
+<Plain>
+The technology choices were deliberately boring, and that was the point. The database is a
+single file, so backing up the shop's records means copying one file. There is no fashionable
+framework to maintain. A tool like this has to still make sense to whoever opens it in five
+years.
+</Plain>
+<Eng>
+Deliberate constraints written before any code: SQLite because backup equals copy, raw SQL
+over an ORM for readability in a year, money stored as integer pence, no frontend framework
+and no build step. Concurrency-safe invoice numbering via BEGIN IMMEDIATE with a UNIQUE
+constraint as the safety net. A scripted 21-assertion HTTP end-to-end walkthrough runs after
+every structural change, alongside 17 pytest tests. The build plan, its explicit
+what-not-to-use list, and every conscious deviation from it are documented; the full story of
+directing an AI-assisted build under these constraints is on the AI page.
+</Eng>
+
+## What it proves
+
+<Plain>
+That engineering judgement includes restraint. This system will outlive trends because it was
+built for the people who use it, not for a technology showcase.
+</Plain>
+<Eng>
+Right-sized architecture, lifecycle modelling, print engineering, test discipline on an
+internal tool, and the ability to write constraints down before writing code.
+</Eng>

@@ -1,0 +1,65 @@
+---
+kind: project
+slug: supplier-etl
+title: "The 12-supplier catalogue pipeline"
+strap: "Twelve suppliers, twelve formats: trade portals, brochure PDFs, spreadsheets. One clean catalogue, acquired with consent, zero errors."
+tier: 1
+role: "Freelance software engineer, 2025 to 2026"
+stack: [Python, pdfplumber, pytesseract, pandas]
+tags: [data-engineering, etl, reliability]
+featured: false
+metrics:
+  - { label: "Largest single acquisition", value: "1,015 products, 9,968 HD images, 0 errors" }
+  - { label: "Brochure PDFs structured", value: "9" }
+media:
+  - { id: etl-pipeline-diagram, kind: diagram, status: pending, capture_note: "Sources to schema map" }
+  - { id: etl-schema-before-after, kind: image, status: pending, capture_note: "Messy source row vs normalised row, fake prices" }
+cases: [zero-errors-one-fragile-server]
+confidentiality: etl-language-rules
+---
+
+## What it is
+
+<Plain>
+The online store's 6,400 products had to come from somewhere. They live with 12 different
+suppliers, each publishing their range a different way: password-protected trade websites,
+glossy PDF brochures, spreadsheets, and one Italian manufacturer's site. As a stocking
+retailer, my client holds trade accounts with all of them, and the suppliers consented to us
+automating what would otherwise be months of manual catalogue entry.
+</Plain>
+<Eng>
+ETL pipelines normalising 12 heterogeneous supplier sources (trade portals accessed with
+retailer-issued credentials, brochure PDFs, spreadsheets) into one product schema that feeds
+the storefront's offline catalogue builder. Supplier consent throughout.
+</Eng>
+
+## What was built
+
+<Plain>
+A family of pipelines, each shaped to its source. The trade-portal work is written up as its
+own case: over a thousand products and nearly ten thousand photographs brought across with
+zero errors from a server that could not take pressure. The brochure work turned nine PDF
+catalogues into clean structured data, including reading text out of photographs of pages.
+Around a thousand mattress images were cleaned up and given fresh descriptions.
+</Plain>
+<Eng>
+Idempotent, checkpointed acquisition passes with manifests as the source of truth (the
+fragile-server case documents the pattern). Nine supplier brochure PDFs parsed to structured
+text and images via pdfplumber, PyPDF2 and pytesseract, including per-layout parsers where
+generic bounding-box heuristics failed. About 1,000 mattress images processed for watermark
+and swatch cleanup with rewritten SEO descriptions. An Italian manufacturer's catalogue built
+from a single URL: 192 models, 3,075 variants, 814 HD images, 2,327 schematic drawings,
+dimension tables in cm and inches, and an Italian-to-English glossary. Zero errors on both
+flagship acquisitions.
+</Eng>
+
+## What it proves
+
+<Plain>
+That messy, real-world data does not scare me, and that I treat other people's
+infrastructure with respect while extracting every last row correctly.
+</Plain>
+<Eng>
+Schema design under heterogeneity, OCR and PDF structure work, completeness as a verifiable
+property, and server-respectful concurrency as a design value.
+</Eng>

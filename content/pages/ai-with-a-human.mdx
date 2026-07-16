@@ -1,0 +1,217 @@
+---
+kind: page
+slug: ai-with-a-human
+title: "AI with a human in the loop"
+strap: "AI writes a lot of my code. Here is what it cannot do, and what I do instead."
+---
+
+<Plain>
+I have used AI to build software since the first ChatGPT release. Not as a spectator: in the
+early days I used it to rebuild things I had already built by hand in other technologies, so
+I could measure it against answers I knew were right. Back then it was honestly often slower
+than doing the work myself. That period taught me the most valuable thing I know about these
+tools: exactly where they help, and exactly where they fail. Everything below comes from my
+real project logs. Nothing is invented.
+</Plain>
+<Eng>
+LLM-assisted development with explicit control points: written constraints before a session,
+scoped authority during it, verification rituals after every change, documented deviations,
+and post-mortems. The receipts below are sanitised excerpts from real session reports and
+build plans, with dates.
+</Eng>
+
+## The method
+
+<Step n={1} phase="decide">
+  <Plain>
+    I make the decisions before the machine starts. For the retail billing system I wrote a
+    long build plan first: which database, why, what the money format is, and a list titled
+    what NOT to use. The AI built to that plan. When it might have drifted toward
+    fashionable choices, the plan said no in advance.
+  </Plain>
+  <Eng>
+    Architecture is decided by the human and written down first. The billing build plan runs
+    over a thousand lines: SQLite because backup equals copy, raw SQL over an ORM, money as
+    integer pence, an explicit rejected-technologies list, and handover text instructing the
+    agent to push back on itself if it reaches for any of them.
+  </Eng>
+</Step>
+
+<Step n={2} phase="constrain">
+  <Plain>
+    Every session starts with written rules. On the wallet project the first line of every
+    session document was a hard rule about never committing changes. On the store, a design
+    rulebook says no screen is finished until its phone layout is described in a sentence.
+    And a data rule I never bend: use real product numbers from the source file, never make
+    them up.
+  </Plain>
+  <Eng>
+    Standing constraints, verbatim from the logs: "Do NOT commit any changes. Working
+    offline only." "Every screen ships two layouts. If you can't describe the mobile layout
+    in a sentence, it isn't designed yet." "Do not synthesise art numbers, use real ones
+    from weimann.json." Constraints live at the top of the session document so every
+    context window re-reads them.
+  </Eng>
+</Step>
+
+<Step n={3} phase="scope">
+  <Plain>
+    The machine is told what it may not touch. On a project with several people and more
+    than one AI working at once, my rules said: hands off the contracts repository, no
+    pushes without a human go-ahead, and if the task is ambiguous, ask before acting.
+  </Plain>
+  <Eng>
+    Authority scoping from a live multi-dev project: "Hands off the contracts repo unless
+    explicitly asked." "Pushes, PR comments, branch cuts: off-limits without explicit
+    go-ahead." "When asked to check GitHub state, actually run gh pr list. Don't rely on
+    memory, state drifts daily." The last one matters: the model is not allowed to answer
+    from recall what it can answer from ground truth.
+  </Eng>
+</Step>
+
+<Step n={4} phase="verify">
+  <Plain>
+    Nothing the machine claims is treated as done until it is tested. The billing system has
+    a scripted walkthrough of the whole business flow, twenty-one checks, run after every
+    structural change. A monitoring fix was not closed until a fresh network capture proved
+    the data actually arriving.
+  </Plain>
+  <Eng>
+    Rituals, not vibes: a 21-assertion scripted HTTP end-to-end plus 17 pytest tests run
+    after structural changes. Key flows spun up locally before anything is declared
+    working. The Sentry fix (case below) closed only on a fresh HAR showing 200 OK and the
+    test event visible in the dashboard.
+  </Eng>
+</Step>
+
+<Step n={5} phase="veto">
+  <Plain>
+    And when the machine is wrong, I catch it. The next section is a log of real catches,
+    with what each one took.
+  </Plain>
+  <Eng>
+    The veto is the control point that cannot be delegated. Case log follows.
+  </Eng>
+</Step>
+
+<Step n={6} phase="document">
+  <Plain>
+    When reality beats the plan, the change is recorded, never slipped in quietly. Session
+    write-ups end with lists titled what was NOT done, and how to undo each change. Honesty
+    is cheaper than archaeology.
+  </Plain>
+  <Eng>
+    Deviations are first-class records: the bcrypt-direct swap over passlib is logged with
+    its rationale ("two function calls and fewer moving parts") next to the gotcha that
+    caused it. Every session report carries how-to-revert and known-issues sections, and a
+    scaffolded-versus-done ledger.
+  </Eng>
+</Step>
+
+## The catch log
+
+<Plain>
+Six real moments where the AI or its output was wrong, and what the human in the loop did.
+Each links to fuller write-ups where one exists.
+</Plain>
+<Eng>
+Sanitised from session reports. Dates and mechanisms preserved.
+</Eng>
+
+<CatchLog>
+  <Catch title="The backend that would have failed on every call" stamp="GROUND TRUTH CHECK">
+    <Plain>
+      A full AI session produced a finished-looking swap backend. I checked its beliefs
+      against the real service by hand and found the whole approach rested on endpoints
+      that did not exist. Discarded, rebuilt correctly, and the wallet's first real swap
+      followed. Full story in the cases.
+    </Plain>
+    <Eng>
+      Guessed API paths, all would have 404'd; the raw API never returns the typed data
+      the design assumed. Verified via curl and SDK source, discarded the session's
+      output, rebuilt on official SDKs. Wrong-versus-right paths documented as a tripwire.
+    </Eng>
+  </Catch>
+  <Catch title="The extractor the AI wanted to keep patching" stamp="EVIDENCE OVER INSTINCT">
+    <Plain>
+      A document extractor kept missing five product ranges. The obvious move was to keep
+      tweaking it and re-running. I forced a re-run to prove the approach could not see
+      the missing sections at all, then wrote small, targeted readers for each document
+      layout instead. All five ranges recovered.
+    </Plain>
+    <Eng>
+      Re-ran with force to demonstrate the bounding-box heuristic structurally missed
+      section headers outside its region. Overrode the patch-and-retry instinct; wrote
+      per-layout pdfplumber parsers with documented judgement calls (leftmost-match
+      finish detection). Five ranges recovered.
+    </Eng>
+  </Catch>
+  <Catch title="The monitoring that sat silent" stamp="READING THE ACTUAL ERROR">
+    <Plain>
+      New error monitoring reported nothing at all, which looked like success and was
+      actually failure. A network capture showed ad-blockers eating the reports because
+      of the path name they travelled on. Renamed the route, proved delivery with a fresh
+      capture.
+    </Plain>
+    <Eng>
+      HAR showed envelope POSTs to /monitoring dying with ERR_BLOCKED_BY_CLIENT: the path
+      is on common blocklists. Retunnelled to a neutral route and added the missing
+      worker-src CSP directive for the replay worker. Verified by HAR and a captured
+      test event.
+    </Eng>
+  </Catch>
+  <Catch title="The plan that broke against reality" stamp="HONEST DEVIATION">
+    <Plain>
+      My own written plan chose a password library that turned out to crash against a
+      newer dependency. Rather than pinning old versions and hiding it, I diagnosed the
+      clash, switched to the simpler underlying tool, and wrote the deviation down.
+    </Plain>
+    <Eng>
+      passlib against bcrypt 4: it reads a removed version attribute and throws. Swapped
+      to bcrypt called directly, recorded as a conscious deviation with the gotcha, so no
+      future session re-hits it.
+    </Eng>
+  </Catch>
+  <Catch title="The key that leaked across projects" stamp="THE HUMAN NOTICES">
+    <Plain>
+      While fixing one project's configuration failure, I noticed a credential from it
+      had strayed into a completely different project's settings file. Cleaned it up, and
+      pushed the deeper lesson upstream: configuration that fails silently should fail
+      loudly at startup.
+    </Plain>
+    <Eng>
+      A Safe API key missing from env caused a runtime failure; grep proved all twelve
+      call sites were correct, so the fix was config, not code. During cleanup, found the
+      same key leaked into an unrelated repo's .env and removed it. Flagged upstream:
+      missing env keys should fail at startup, not at first use.
+    </Eng>
+  </Catch>
+  <Catch title="The guardrails the machine would not have chosen" stamp="ETHICS IS A HUMAN JOB">
+    <Plain>
+      A lead-generation tool I built for the retailer has rules the AI did not propose:
+      respect websites' terms, keep request rates gentle, and prefer replying publicly to
+      people over harvesting their contact details. Lawful basis before contact, always.
+    </Plain>
+    <Eng>
+      Written caveats in the tool's README: GDPR lawful-basis requirements for outreach,
+      preferring public replies over storing personal data from buyer-intent posts, rate
+      limits kept deliberately low, and a manual workflow where automation would violate
+      a platform's terms.
+    </Eng>
+  </Catch>
+</CatchLog>
+
+## What the model still cannot do
+
+<Plain>
+Hold responsibility. Know when it is confidently wrong. Respect a constraint it was never
+given. Care that the server on the other end is fragile, that the customer's order must
+survive an outage, that a key leaked. Decide what not to build. That is the job. The model
+types faster than I do. I decide better than it does. Hire the combination.
+</Plain>
+<Eng>
+The failure modes above share a shape: the model optimises for plausibility inside the
+context it was given. The human supplies ground truth, constraints, ethics and the veto.
+This site was itself built this way, plans, session reports, catch log and all; the
+colophon has the receipts.
+</Eng>

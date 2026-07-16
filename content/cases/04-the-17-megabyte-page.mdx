@@ -1,0 +1,106 @@
+---
+kind: case
+slug: the-17-megabyte-page
+title: "The 17.5 megabyte page"
+hook: "The shop worked perfectly. It also shipped the entire 6,400-product catalogue to every visitor's phone."
+date: 2026-07
+project: cwtch-store
+tags: [performance, nextjs, production]
+stamps: [SYMPTOM, INVESTIGATION, ROOT CAUSE, FIX, VERIFIED]
+metrics:
+  - { ref: "deltas.cartBundle" }
+  - { ref: "cwtchStore.pdpFirstLoadKb" }
+media:
+  - id: cwtch-bundle-before-after
+    kind: image
+    status: pending
+    capture_note: "Bundle analyzer screenshots, before and after, same treemap zoom"
+  - id: cwtch-lighthouse
+    kind: image
+    status: pending
+    capture_note: "Lighthouse mobile run on live site post-fix"
+confidentiality: cwtch-public-ok
+---
+
+<Step n={1} phase="symptom">
+  <Plain>
+    cwtchcomfort.com is a real furniture shop I built and run solo for a two-branch Welsh
+    retailer. It sells around 6,400 products from 12 suppliers. During a production audit
+    I ran on my own work, I found something embarrassing: the site was quietly sending the
+    entire product catalogue, 17.5 megabytes of it, to every visitor. On a phone, on
+    mobile data, before they saw a single sofa.
+  </Plain>
+  <Eng>
+    Self-audit of the live storefront. The offline catalogue builder outputs a 17.5 MB
+    products.json which pages consume at build time. The audit found it compiled into
+    client-side JavaScript, so first-load JS on key routes was effectively the whole
+    catalogue. No user had complained. That is the trap with performance debt: the site
+    "worked".
+  </Eng>
+</Step>
+
+<Step n={2} phase="investigation">
+  <Plain>
+    Finding out how the catalogue leaked into the visitor's download took actual
+    detective work. It was not one mistake. Three separate paths through the code each
+    pulled the full catalogue along like a caravan, and any one of them alone was enough
+    to cause the problem.
+  </Plain>
+  <Eng>
+    Bundle analysis traced three independent import paths compiling products.json into
+    client chunks. The worst was the cart: it needed to turn stored line-item ids back
+    into product data, and did so by importing the catalogue module directly, which
+    dragged the entire dataset across the server-client boundary.
+  </Eng>
+</Step>
+
+<Step n={3} phase="root-cause">
+  <Plain>
+    The root cause was a boundary nobody had drawn. Code that must run in the browser was
+    allowed to reach into data that should only ever live on the server. Once that line
+    is fuzzy, every convenient import makes the problem worse.
+  </Plain>
+  <Eng>
+    Missing server-client contract. Derivation helpers used by client components lived in
+    the same module graph as the full dataset, so any client import transitively bundled
+    it. The framework will happily inline what you let it reach.
+  </Eng>
+</Step>
+
+<Step n={4} phase="fix">
+  <Plain>
+    Two moves. First, split the code so browser-side pieces only ever see a small, safe
+    module. Second, teach the cart to ask the server: it sends the short list of item ids
+    it holds, the server sends back just those products. Nothing else crosses the wire.
+  </Plain>
+  <Eng>
+    Extracted a client-safe derive module so shared helpers no longer touch the dataset.
+    Cart hydration moved to POST /api/cart/resolve: ids in, resolved products out, capped
+    at 60 line items server-side. The catalogue stays where it belongs, in the build and
+    the API layer.
+  </Eng>
+</Step>
+
+<Step n={5} phase="verified">
+  <Plain>
+    Measured, not assumed: the cart's first download dropped from 17.5 megabytes to 221
+    kilobytes. Roughly eighty times lighter. Product pages landed at 286 kilobytes. The
+    evidence panel has the before-and-after pictures.
+  </Plain>
+  <Eng>
+    Post-fix build output: cart first-load JS 221 kB, PDP 286 kB. Verified via build
+    budget output and bundle analyzer treemaps, before and after at identical zoom.
+    A first-load budget now fails the build if the boundary is ever crossed again.
+  </Eng>
+</Step>
+
+<Takeaway>
+  Performance is a boundary-drawing discipline. The fix was not compression or caching
+  tricks, it was deciding which side of the wire data lives on and enforcing it.
+</Takeaway>
+
+<ProductClose>
+  Slow sites lose sales silently: nobody emails you to say your bundle is 17 megabytes,
+  they just leave. An engineer who audits their own live work finds this before your
+  customers do.
+</ProductClose>

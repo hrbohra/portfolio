@@ -1,0 +1,98 @@
+---
+kind: case
+slug: eight-thousand-images-in-a-weekend
+title: "Eight thousand images in a weekend"
+hook: "Classifying 8,000 product photos by hand takes about a month. The client had a weekend and no budget."
+date: 2026-04
+project: vision-pipeline
+tags: [ai-ml, data-engineering, pragmatism]
+stamps: [CONSTRAINT, DESIGN, INCIDENT, VERIFIED]
+metrics:
+  - { ref: "vision.images" }
+  - { ref: "vision.categories" }
+  - { label: "Images left uncategorised", value: "0" }
+  - { label: "Cloud cost", value: "£0" }
+media:
+  - id: vision-category-grid
+    kind: image
+    status: pending
+    capture_note: "Category montage from classified output, client nod required"
+  - id: vision-throughput-chart
+    kind: diagram
+    status: pending
+    capture_note: "Progress-over-time chart from progress.json, checkpoint marks visible"
+confidentiality: cwtch-client-data-nod
+---
+
+<Step n={1} phase="constraint">
+  <Plain>
+    The furniture client's new catalogue had 7,975 product photos from a dozen suppliers,
+    and none of them knew what they were pictures of. Sofa or bed, dining or fabric
+    swatch: a human sorting them at a steady pace needs weeks. The website launch needed
+    them sorted now, and the budget for cloud AI services was zero.
+  </Plain>
+  <Eng>
+    Classification task: 7,975 images into 7 categories (bedroom, living, dining, chairs,
+    fabrics and swatches, mattresses, occasional). Constraints: zero cloud spend, one
+    consumer machine, a weekend of wall-clock time, and no tolerance for a half-finished
+    run. A vision LLM run locally fits all four if, and only if, the pipeline around it
+    is solid.
+  </Eng>
+</Step>
+
+<Step n={2} phase="design">
+  <Plain>
+    The AI model is the glamorous part and the easy part: a free, capable vision model
+    running on my own machine, looking at each photo and naming what it sees. The real
+    work is wrapping it in something that survives a multi-hour run: several images
+    processed at once, and a running record of what is finished, so a crash costs
+    minutes, not the weekend.
+  </Plain>
+  <Eng>
+    Local Ollama serving qwen2.5vl:7b, parallel workers feeding it, and a checkpoint file
+    as the source of truth: every completed image is recorded in progress.json, and
+    startup resumes from the checkpoint rather than from zero. The batch is designed
+    around the assumption that a multi-hour job on a consumer machine will be
+    interrupted. Same philosophy as my ETL work: assume interruption, make restarts
+    cheap.
+  </Eng>
+</Step>
+
+<Step n={3} phase="incident">
+  <Plain>
+    The run did get interrupted, more than once, over its multi-hour life. Each time, it
+    picked up where it stopped, exactly as designed. There is a special calm in watching
+    a system fail the way you planned for.
+  </Plain>
+  <Eng>
+    Multiple interruptions across the multi-hour batch, all absorbed by checkpoint
+    resume. No duplicate work, no lost work, no manual bookkeeping. The throughput chart
+    in the evidence panel shows the restarts as flat spots, not resets.
+  </Eng>
+</Step>
+
+<Step n={4} phase="verified">
+  <Plain>
+    By the end of the weekend: all 7,975 images sorted into the 7 categories, none left
+    over, total AI bill of zero pounds. The categories went straight into the website's
+    catalogue build, where they still do their job today.
+  </Plain>
+  <Eng>
+    7,975/7,975 classified, 7 categories, 0 uncategorised, £0 inference cost. Output CSV
+    feeds the storefront's offline catalogue builder. The honest caveat, stated because
+    honesty scales: a 7B local model is not perfect, and the taxonomy was designed so
+    that boundary mistakes between adjacent categories are cheap to correct downstream.
+  </Eng>
+</Step>
+
+<Takeaway>
+  Pragmatic ML. The model was the easy half; the checkpointed pipeline was the work.
+  Knowing when a small local model plus solid engineering beats an expensive API is
+  itself an engineering skill.
+</Takeaway>
+
+<ProductClose>
+  Before paying a cloud AI bill or a month of manual labour, ask whether a weekend, a
+  local model and a well-built pipeline would do. Sometimes the answer is no. Knowing
+  which is which is what I bring.
+</ProductClose>

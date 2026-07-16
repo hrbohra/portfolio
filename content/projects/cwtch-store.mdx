@@ -1,0 +1,85 @@
+---
+kind: project
+slug: cwtch-store
+title: "Cwtch Comfort, the online store"
+strap: "A real furniture retailer's e-commerce platform. About 6,434 products, 12 supplier brands, built and run solo. Live."
+tier: 1
+role: "Freelance software engineer, Sep 2025 to present"
+stack: ["Next.js 14", Tailwind, Zustand, Stripe, "Cloudflare R2", Sentry, "Vercel"]
+tags: [live-product, e-commerce, flagship]
+featured: true
+links:
+  - { label: "Live site", url: "https://cwtchcomfort.com" }
+metrics:
+  - { label: "Products", value: "~6,434 across 12 supplier brands" }
+  - { label: "Cart first-load JavaScript", value: "221 kB" }
+media:
+  - { id: cwtch-homepage-tour, kind: video, status: pending, capture_note: "45s home, mega-menu, category" }
+  - { id: cwtch-configurator-sofa, kind: video, status: pending, capture_note: "30s two-axis configurator" }
+  - { id: cwtch-bed-builder, kind: video, status: pending, capture_note: "45s Weimann bed builder" }
+  - { id: cwtch-pdp, kind: image, status: pending, capture_note: "PDP with finish switcher" }
+cases: [the-17-megabyte-page, the-order-that-must-never-disappear]
+confidentiality: cwtch-public-ok
+---
+
+## What it is
+
+<Plain>
+Technicon Furnishers is a real furniture company with two shops in the South Wales valleys.
+They needed to sell online. A five-person team elsewhere had spent a year on it without
+shipping. I took it over and built it solo: a full store carrying roughly 6,434 products from
+12 different suppliers, live at cwtchcomfort.com.
+</Plain>
+<Eng>
+Next.js 14 App Router storefront for a VAT-registered two-branch retailer. The catalogue is
+built offline by a Python pipeline that normalises 12 heterogeneous supplier sources into one
+schema; the site consumes the built catalogue with no database. Deployed on Vercel with
+Sentry across client, server and edge.
+</Eng>
+
+## What was built
+
+<Plain>
+Everything a furniture shop needs online: browsing that handles thousands of products without
+feeling like a warehouse, product pages led by photography, and configurators that let a
+customer build their own sofa, bed or wardrobe and watch the price update as they choose.
+Then the unglamorous parts that make it a business: card payments, delivery rules by
+postcode, orders that cannot be lost, and the legal pages.
+</Plain>
+<Eng>
+Mega-menu navigation, per-category landing pages, faceted /shop, photography-led PDPs with a
+finish switcher and tiered range rail. A two-axis sofa configurator (configuration times
+colour), a Weimann bed builder, and a wardrobe configurator with live pricing including VAT.
+Stripe-hosted checkout with server-side price validation (rejects enquire-only and zero-price
+items, enforces per-product minimum quantities authoritatively in the API) and
+signature-verified webhooks. Postcode-gated delivery via a KV allowlist, collection option,
+enquiry flows for made-to-order items. Orders persist to KV before any email attempt, with an
+admin viewer and Sentry alerts on both paths. HMAC-cookie admin auth with a written security
+assessment. Consent-gated GA4 with purchase conversion events, CSP and security-header
+middleware, JSON-LD, sitemap and canonical SEO, and a styled error boundary. I also authored
+the 19-clause online conditions of sale and the returns, delivery and contact pages.
+</Eng>
+
+## The hard parts
+
+<Plain>
+Two are written up as cases: the day I caught my own site shipping the entire catalogue to
+every visitor's phone, and the design decision that means a paid order can never silently
+vanish, even if our email provider dies at the worst moment.
+</Plain>
+<Eng>
+See the linked cases. The general pattern of this project: a solo engineer is also the
+reviewer, so I run scheduled audits of my own production work and treat the findings exactly
+as if a colleague had shipped them.
+</Eng>
+
+## What it proves
+
+<Plain>
+That I can carry a real business's whole online presence alone: design, build, payments,
+operations, legal copy and monitoring, and keep it fast and safe while doing it.
+</Plain>
+<Eng>
+Production e-commerce end to end: payment integrity server-side, failure-mode design,
+performance budgets held on a large catalogue, observability, and commercial pragmatism.
+</Eng>

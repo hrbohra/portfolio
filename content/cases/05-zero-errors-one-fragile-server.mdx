@@ -1,0 +1,100 @@
+---
+kind: case
+slug: zero-errors-one-fragile-server
+title: "1,015 products, 9,968 images, zero errors, one fragile server"
+hook: "The supplier said yes. Their ageing server said maybe."
+date: 2026-06
+project: supplier-etl
+tags: [data-engineering, reliability, etl]
+stamps: [CONSTRAINT, DESIGN, INCIDENT, FIX, VERIFIED]
+metrics:
+  - { ref: "deltas.seconiqueCompleteness" }
+  - { ref: "etl.seconique.images" }
+  - { label: "Errors", value: "0" }
+media:
+  - id: etl-progress-log
+    kind: image
+    status: pending
+    capture_note: "Progress/run-manifest visualisation across the four passes"
+  - id: etl-pipeline-diagram
+    kind: diagram
+    status: pending
+    capture_note: "Acquisition pipeline: passes, checkpoint store, CDN image path"
+confidentiality: etl-language-rules
+---
+
+<Step n={1} phase="constraint">
+  <Plain>
+    My retail client stocks products from a UK wholesaler. As a stocking retailer they
+    hold a trade account, and the supplier was happy for us to use it to bring the
+    catalogue across: 1,015 products with nearly ten thousand photographs. The
+    alternative was months of manual data entry. One catch: the supplier's website ran on
+    visibly old infrastructure, and leaning on it too hard would knock it over. Breaking
+    your supplier's website is bad manners and worse business.
+  </Plain>
+  <Eng>
+    Automated catalogue ingestion from a supplier trade portal, using retailer-issued
+    trade credentials, with supplier consent. Target: 1,015 products, 9,968 HD images,
+    about 395 MB, plus trade pricing. Constraint: the origin server degraded quickly
+    under concurrent load, so politeness was an engineering requirement, not a courtesy.
+  </Eng>
+</Step>
+
+<Step n={2} phase="design">
+  <Plain>
+    I designed the whole job around one idea: assume interruption. The run works in
+    passes, and every pass only fetches what is still missing, so stopping halfway wastes
+    nothing. I capped how many requests we made at once to a number the old server could
+    live with, and pulled the heavy images from the fast delivery network instead of the
+    fragile site itself. For prices, instead of visiting 1,015 pages, I read the same
+    numbers from a few dozen listing pages.
+  </Plain>
+  <Eng>
+    Idempotent snapshotting passes: each pass diffs the manifest and fetches only the
+    delta, so any interruption costs one pass, not the run. Concurrency capped at 4
+    against the fragile origin. Image downloads parallelised via the CDN rather than
+    extra page loads. Price extraction moved from 1,015 product-page visits to paginated
+    category grids. Every design choice traded speed for the server staying up.
+  </Eng>
+</Step>
+
+<Step n={3} phase="incident">
+  <Plain>
+    Mid-run, the supplier's site went down anyway, on its own schedule, nothing to do
+    with us. For a script built the normal way that means starting over and praying. For
+    this one it meant waiting, then resuming exactly where it left off.
+  </Plain>
+  <Eng>
+    Mid-run origin outage. The pass structure absorbed it: on recovery, the next pass
+    resumed from the manifest. Captured product counts across passes tell the story:
+    562, then 970, then 1,012, then 1,015 of 1,015.
+  </Eng>
+</Step>
+
+<Step n={4} phase="verified">
+  <Plain>
+    Final tally: every one of the 1,015 products, all 9,968 images, trade prices for
+    1,009 items, and zero errors. The supplier's website never went down because of us.
+    The same approach later brought across an Italian manufacturer's catalogue, 192
+    models with over three thousand variants, including translating the whole thing from
+    Italian. Also zero errors.
+  </Plain>
+  <Eng>
+    Run manifests confirm 1,015/1,015 products, 9,968/9,968 images, 0 errors, prices for
+    1,009. The pattern was reused for an Italian manufacturer, built from a single URL:
+    192 models, 3,075 variants, 814 HD images plus 2,327 schematic drawings, full variant
+    tables in cm and inches, an Italian-to-English glossary, 0 errors. Completeness is a
+    verifiable property when you build on manifests.
+  </Eng>
+</Step>
+
+<Takeaway>
+  Reliability engineering in miniature: idempotency, checkpointing and restraint. Zero
+  errors is not luck, it is a design property, and the fragile server was a stakeholder.
+</Takeaway>
+
+<ProductClose>
+  Every business has a version of this: data trapped somewhere awkward, and a naive
+  script that would either fail or cause damage. The difference between the two outcomes
+  is who you hire to write it.
+</ProductClose>

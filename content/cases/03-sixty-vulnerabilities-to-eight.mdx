@@ -1,0 +1,89 @@
+---
+kind: case
+slug: sixty-vulnerabilities-to-eight
+title: "Sixty vulnerabilities to eight, before anyone got hurt"
+hook: "Nobody asked for a security pass. The wallet was about to hold strangers' money, so it got one."
+date: 2026-04
+project: cache-wallet
+tags: [security, web3, production]
+stamps: [CONSTRAINT, FINDING, FIX, VERIFIED]
+metrics:
+  - { ref: "deltas.cacheVulns" }
+media:
+  - id: cache-security-pass
+    kind: diagram
+    status: pending
+    capture_note: "60 to 8 triage map: patched / replaced / accepted, with counts"
+confidentiality: cache-content-guarded
+---
+
+<Step n={1} phase="constraint">
+  <Plain>
+    A crypto wallet is a promise: your money and your identity are safe here. Before
+    launch, I treated that promise as my job even though no ticket said so. I went looking
+    for the ways a stranger could hurt our users, in our own code and in everything we had
+    borrowed.
+  </Plain>
+  <Eng>
+    Pre-launch security pass, self-initiated. Scope: the API surface (authorisation and
+    session handling), and the dependency tree. Constraint: launch timeline unchanged, so
+    findings needed triage discipline, not a rewrite.
+  </Eng>
+</Step>
+
+<Step n={2} phase="finding">
+  <Plain>
+    Two kinds of problem turned up. First, doors that opened for the wrong people: places
+    where asking for someone else's data politely enough would hand it over. Second, old
+    locks: dozens of known weaknesses in third-party building blocks we depended on, sixty
+    of them when counted honestly.
+  </Plain>
+  <Eng>
+    Finding one: IDOR on user-scoped endpoints. Authenticated requests could address other
+    users' resources by identifier; authorisation checks were missing at the object level.
+    Finding two: 60 known vulnerabilities across dependencies. Finding three: session
+    tokens lived too long and could not be revoked, which turns any single leak into a
+    long-term compromise.
+  </Eng>
+</Step>
+
+<Step n={3} phase="fix">
+  <Plain>
+    The doors got locks that check who you are on every request, not just at the entrance.
+    Sessions became short-lived and revocable, so a stolen key expires before it matters.
+    The sixty old locks got sorted into three honest piles: fix now, replace the part, or
+    accept knowingly with a written reason. Pretending you will fix all sixty is how none
+    get fixed.
+  </Plain>
+  <Eng>
+    IDOR closed with object-level authorisation on every user-scoped route. Session auth
+    migrated to short-lived JWTs with refresh-token rotation and revocation. Dependencies
+    triaged explicitly: patched where updates existed, replaced where maintainers had
+    gone quiet, accepted with written rationale where exploitability did not apply to our
+    usage. 60 became 8, and the 8 have documentation, not silence.
+  </Eng>
+</Step>
+
+<Step n={4} phase="verified">
+  <Plain>
+    Every fix was tested by trying the attack again and watching it fail. The whole pass
+    was written up, including a threat model: a document that asks, in advance, how bad
+    each kind of break-in would be and how hard it is to pull off.
+  </Plain>
+  <Eng>
+    Each IDOR fix verified by replaying the original access pattern and confirming denial.
+    The pass produced a threat-model document covering, among other things, OTP
+    brute-force probability and hashing hardness. Residual risk is enumerated, not
+    implied. Security as habit, not checkbox.
+  </Eng>
+</Step>
+
+<Takeaway>
+  Security work is triage plus honesty. Sixty to eight matters less than the fact that
+  the remaining eight are named, understood and accepted on paper.
+</Takeaway>
+
+<ProductClose>
+  If your product holds money or personal data, the cheapest security incident is the one
+  found by your own engineer before launch. I look without being asked.
+</ProductClose>

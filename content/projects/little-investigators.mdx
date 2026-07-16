@@ -1,0 +1,62 @@
+---
+kind: project
+slug: little-investigators
+title: "Little Investigators"
+strap: "MSc dissertation delivered for a real client: a mapping platform where London schoolchildren record how their local area makes them feel."
+tier: 1
+role: "MSc dissertation, Cardiff University, for the Built Environment Trust, Jun to Sep 2024"
+stack: [Flask, PostgreSQL, SQLAlchemy, Folium, Leaflet, Redis, Elasticsearch, spaCy, Presidio]
+tags: [research, ai-ml, client-work]
+featured: true
+metrics:
+  - { label: "Client", value: "Built Environment Trust (real external stakeholders)" }
+media:
+  - { id: investigators-demo, kind: video, status: pending, capture_note: "60s local walkthrough" }
+  - { id: investigators-map, kind: image, status: pending, capture_note: "Map UI with emotion markers" }
+cases: []
+confidentiality: own-work-ok
+---
+
+## What it is
+
+<Plain>
+My master's dissertation was not a paper exercise. It was delivered for the Built
+Environment Trust, a real organisation, with real stakeholder meetings. The idea: give
+London schoolchildren a map where they can pin places in their neighbourhood and record
+what they noticed and how it made them feel. The result is a picture of a city as its
+children experience it, useful to educators and planners.
+</Plain>
+<Eng>
+Full-stack geo-emotion mapping platform. Flask and PostgreSQL backend, Folium/Leaflet maps,
+Redis caching, Elasticsearch search. Children place markers with text and images; spaCy NLP
+aggregates emotional signal across contributions.
+</Eng>
+
+## The hard part: children and privacy
+
+<Plain>
+Everything about this project is shaped by one fact: the users are children. Photos are
+checked automatically before anyone sees them. Names and personal details are stripped from
+anything that leaves the system. Partway through, the client meetings surfaced a simpler,
+safer shape for the whole product, and I pivoted the design rather than defending the plan.
+</Plain>
+<Eng>
+GDPR privacy-by-design: NSFW image moderation (TensorFlow.js and SightEngine), PII
+anonymisation via Presidio on any exported insight, and data minimisation throughout.
+Iterative client engagement, requirements meetings, prototype reviews, and a
+feasibility-driven scope pivot in August 2024 that simplified the role model. The
+production evolution of this platform became InvestigationMap during my internship at
+Cardiff University's School of Architecture, where sentiment throughput reached 2,900+
+entries per second, a 25 percent improvement.
+</Eng>
+
+## What it proves
+
+<Plain>
+That I could run a real client engagement before I ever held the job title: listen, propose,
+prototype, pivot, deliver. And that I design for the most vulnerable user in the room.
+</Plain>
+<Eng>
+Stakeholder-driven iteration, privacy engineering under a hard constraint set, and NLP in a
+shipped context rather than a notebook.
+</Eng>

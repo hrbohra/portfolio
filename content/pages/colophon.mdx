@@ -1,0 +1,37 @@
+---
+kind: page
+slug: colophon
+title: "Colophon"
+strap: "You are looking at the demo. This page is case zero: how this site is built, with receipts."
+---
+
+<Plain>
+Every claim this site makes about how I work is checkable against the site itself. It is
+written twice, top to bottom: the toggle in the corner switches every page between the
+version for people who read stories and the version for people who read logs. It loads
+fast because it ships almost nothing. And it was built the way the AI page describes:
+plans first, AI-assisted, verified, written up.
+</Plain>
+<Eng>
+Next.js App Router, fully static export. No database, no server state, no forms. Content
+is MDX with Zod-validated frontmatter; the Plain and Engineer voices are paired semantic
+components, both pre-rendered into the static HTML, swapped by a root data attribute with
+zero layout shift. Facts and metrics come from a single typed constants module; site copy
+may not retype a number. Media lives on Cloudflare R2 behind its own subdomain, so the
+repository stays light and the bandwidth bill stays zero. Hosted on Vercel's free tier.
+</Eng>
+
+## Receipts
+
+<Plain>
+The performance scores, the build checks and the design decisions are published here as
+they land, not described in the abstract.
+</Plain>
+<Eng>
+Published as they land: Lighthouse runs, the CI pipeline (typecheck, content lint including
+an em-dash ban and a banned-word list, schema validation, a facts-consistency gate that
+fails the build if site copy drifts from the CV, link checking), and the architecture
+decision records in the public repository, including the options that were rejected.
+</Eng>
+
+<ReceiptsWall status="pending" note="Lighthouse screenshot, CI badge, bundle table and ADR index land here after first deploy." />

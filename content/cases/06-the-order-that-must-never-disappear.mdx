@@ -1,0 +1,93 @@
+---
+kind: case
+slug: the-order-that-must-never-disappear
+title: "The order that must never disappear"
+hook: "A customer pays. Your email provider is down. What happens to the order?"
+date: 2026-07
+project: cwtch-store
+tags: [design, reliability, payments]
+stamps: [QUESTION, DESIGN, GUARANTEE, VERIFIED]
+metrics:
+  - { label: "Silent order loss after fix", value: "0 by design" }
+media:
+  - id: cwtch-order-flow
+    kind: diagram
+    status: pending
+    capture_note: "Order flow: persist-first, then email, alerts on both paths"
+  - id: cwtch-admin-orders
+    kind: image
+    status: pending
+    capture_note: "/admin/orders viewer, FAKE data only, client nod required"
+confidentiality: cwtch-admin-fake-data
+---
+
+<Step n={1} phase="question">
+  <Plain>
+    This case is not a bug hunt. It is a design decision, which is the other half of
+    engineering. The shop takes real payments. The order used to travel to the shop's
+    staff by email. So I asked the paranoid question on purpose: a customer pays, and at
+    that exact moment our email provider is having a bad day. Where is the order? The
+    honest answer was: nowhere. Money taken, order gone, and nobody would even know.
+  </Plain>
+  <Eng>
+    Failure-mode analysis on the post-payment path. Stripe confirms the charge via
+    webhook; fulfilment notification went out by email. Email was the only durable record
+    on our side. An email-provider outage in that window meant a paid order with no
+    persisted trace and no operator signal. Probability low, cost unacceptable,
+    detectability zero. That combination is what you design against.
+  </Eng>
+</Step>
+
+<Step n={2} phase="design">
+  <Plain>
+    The fix is an ordering rule: write it down first, tell people second. The moment a
+    payment lands, the order is saved somewhere durable before any email is attempted.
+    Then staff get their notification. If saving fails, or the email fails, an alarm goes
+    to me either way. And staff no longer depend on their inbox: there is an admin page
+    that lists every order straight from storage.
+  </Plain>
+  <Eng>
+    Persist-before-notify. The signature-verified webhook writes the order to durable KV
+    before any email attempt. An /admin/orders viewer reads from KV directly, removing
+    the inbox as a single point of failure. Sentry alerts fire on persistence failure and
+    on email failure independently: both legs are observable. Admin access sits behind
+    HMAC-cookie auth with a written security assessment.
+  </Eng>
+</Step>
+
+<Step n={3} phase="guarantee">
+  <Plain>
+    The result is a promise you can state in one sentence: if the customer paid, the
+    order exists, and if anything went wrong around it, a human finds out. Weaker systems
+    promise "it usually works". Guarantees are what let a two-person shop sleep.
+  </Plain>
+  <Eng>
+    Invariant: charge confirmed implies order persisted, or an alert has fired. No path
+    exists where payment succeeds and the order vanishes silently. The design writes the
+    invariant first and derives the sequence from it, not the other way round.
+  </Eng>
+</Step>
+
+<Step n={4} phase="verified">
+  <Plain>
+    Tested by rehearsing the disaster: simulate the email service failing on a paid
+    order, watch the order survive in storage and the alarm arrive. Verification means
+    making the bad day happen on purpose, in rehearsal.
+  </Plain>
+  <Eng>
+    Verified by fault injection: email path failed deliberately on a test order,
+    order present in KV, Sentry alert received. The storefront's checkout also validates
+    prices server-side and enforces minimum quantities authoritatively in the API, part
+    of the same principle: the server owns the truth.
+  </Eng>
+</Step>
+
+<Takeaway>
+  Thinking in guarantees, not happy paths. The valuable question was not "does it work"
+  but "what survives when the third party under it fails".
+</Takeaway>
+
+<ProductClose>
+  Ask your team what happens to a paid order if your email provider dies for an hour.
+  If the answer takes longer than a sentence, that is the engineer you are missing.
+</ProductClose>

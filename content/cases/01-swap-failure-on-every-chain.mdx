@@ -1,0 +1,115 @@
+---
+kind: case
+slug: swap-failure-on-every-chain
+title: "The swap that failed on every chain"
+hook: "Three weeks before launch, every token swap on all 7 networks started failing at once."
+date: 2026-03
+project: cache-wallet
+tags: [web3, debugging, production]
+stamps: [SYMPTOM, HYPOTHESIS, DEAD END, ROOT CAUSE, FIX, VERIFIED]
+metrics:
+  - { ref: "cache.chains" }
+  - { label: "Time to fix", value: "same day" }
+media:
+  - id: cache-swap-sequence
+    kind: diagram
+    status: pending
+    capture_note: "Swap sequence SVG, failure path struck through at signature recovery"
+  - id: cache-signing-fix
+    kind: diagram
+    status: pending
+    capture_note: "Before/after signing path, WETH pre-wrap highlighted"
+confidentiality: cache-content-guarded
+---
+
+<Step n={1} phase="symptom">
+  <Plain>
+    I was the founding engineer on a crypto wallet, three weeks from launch. One morning,
+    every token swap stopped working. Not one coin. Not one network. Every swap, on all
+    seven networks the wallet supported, failed. Users would have seen their money simply
+    refuse to move.
+  </Plain>
+  <Eng>
+    Gasless swap submissions began failing across all 7 EVM networks simultaneously.
+    Orders were built, signed and submitted, then rejected at fill. Nothing in our code
+    had shipped that morning. A failure this uniform pointed at something shared by every
+    chain path, which is a short list: the SDK, the signing flow, or the provider.
+  </Eng>
+</Step>
+
+<Step n={2} phase="dead-end">
+  <Plain>
+    The obvious suspects came first. Was our connection to each blockchain misconfigured?
+    Hours went into checking that. Nothing. Was the network fee estimation wrong, so
+    transactions died before running? More hours. Also nothing. Both reasonable guesses.
+    Both wrong. I keep my dead ends in the write-up because this is what real debugging
+    looks like.
+  </Plain>
+  <Eng>
+    Hypothesis 1: per-chain RPC misconfiguration. Ruled out, endpoints healthy, reads and
+    unrelated writes fine on every chain. Hypothesis 2: gas estimation. Ruled out, these
+    are gasless orders filled by a relayer, and fills were being rejected, not reverting
+    on gas. The uniformity across chains kept saying the same thing: stop looking at
+    chain-specific config.
+  </Eng>
+</Step>
+
+<Step n={3} phase="root-cause">
+  <Plain>
+    The real cause sat in the fine print of a partner system. The service that fills swaps
+    had changed how it derives the address that signs an order. Our wallet signed orders
+    one way. The filler now reconstructed the signer a different way. The two no longer
+    matched, so every order looked forged and was rejected. On every chain, because every
+    chain used the same signing flow.
+  </Plain>
+  <Eng>
+    The liquidity provider's flow had moved to ProxyFactory-derived maker addresses.
+    Signature recovery on the filled order no longer resolved to the EOA that signed the
+    EIP-712 payload, so every order failed maker verification. I traced it through the SDK
+    source and signature-recovery flows rather than our application code. The bug was not
+    in our repo, which is exactly why no diff explained it.
+  </Eng>
+</Step>
+
+<Step n={4} phase="fix">
+  <Plain>
+    Rewriting our whole signing system under deadline would have been the panic move. The
+    calm move was smaller: convert the coin at the very start of the swap so the rest of
+    the journey stayed on the standard, well-tested path. One extra step for the wallet,
+    zero exotic code, and the partner system was happy again. I also rebuilt the order
+    flow so nothing stale could linger from before the fix.
+  </Plain>
+  <Eng>
+    For native-ETH swaps I added a WETH pre-wrap, keeping the standard ERC-20 signing path
+    end to end and avoiding the ProxyFactory maker mismatch entirely. Alongside it, a
+    stateless rebuild of order construction eliminated a stale order cache that the outage
+    had exposed. Scope stayed deliberately narrow: preserve the audited path, do not fork
+    the signing flow three weeks before launch.
+  </Eng>
+</Step>
+
+<Step n={5} phase="verified">
+  <Plain>
+    Swaps came back the same day. Later, with real money, I ran the full journey on a live
+    network myself: approve, quote, sign, submit, filled. Watching actual funds convert
+    correctly is the only test that fully counts in this business.
+  </Plain>
+  <Eng>
+    Execution restored same day across all 7 networks. Verification was the full mainnet
+    flow with live funds on Base: allowance check, approval tx, quote, EIP-712 sign,
+    relayer submit, filled. USDC to WETH. The incident and the fix went into a written
+    post-mortem with a how-to-revert section, like every change on this project.
+  </Eng>
+</Step>
+
+<Takeaway>
+  Systematic isolation under deadline pressure. When everything fails at once, the cause
+  lives in what everything shares. And the right fix is often the smallest one that keeps
+  you on the well-tested path.
+</Takeaway>
+
+<ProductClose>
+  If your product moves money, the scariest bugs are the ones that arrive from outside
+  your own code. What you want on payroll is someone who has already lived one, three
+  weeks before a launch, and fixed it before dinner.
+</ProductClose>

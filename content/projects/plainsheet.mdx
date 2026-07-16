@@ -1,0 +1,83 @@
+---
+kind: project
+slug: plainsheet
+title: "PlainSheet"
+strap: "Clinical trial information, made navigable. A cite-or-refuse AI agent over participant information sheets, with the eval receipts public."
+tier: 1
+role: "Independent build, Jul 2026. Public repo, live demo."
+stack: [TypeScript, "Next.js", PostgreSQL, pgvector, "Gemini / Claude (provider-agnostic)", "transformers.js", MCP, vitest, "GitHub Actions"]
+tags: [ai-ml, live-product, flagship, open-source]
+featured: true
+links:
+  - { label: "Live demo", url: "https://plainsheet-demo.vercel.app" }
+  - { label: "Source + evals", url: "https://github.com/hrbohra/plainsheet" }
+metrics:
+  - { label: "Eval suite", value: "25/25 green in CI, adversarial cases included" }
+  - { label: "Tool-step latency", value: "18s to 2s after model-split tuning" }
+  - { label: "Build time", value: "three evenings, honest build log in the README" }
+media:
+  - { id: plainsheet-cited-answer, kind: image, status: pending, capture_note: "exists in repo: docs/screenshots/ask-cited-answer.png; push to R2" }
+  - { id: plainsheet-refusal, kind: image, status: pending, capture_note: "exists in repo: docs/screenshots/ask-refusal.png" }
+  - { id: plainsheet-audit, kind: image, status: pending, capture_note: "exists in repo: docs/screenshots/audit-report.png" }
+cases: []
+confidentiality: public-ok
+---
+
+## What it is
+
+<Plain>
+Before I was an engineer, I spent two and a half years on a Cardiff University Public
+Advisory Group for a cancer study, reading trial information sheets by hand to check that
+ordinary people could actually understand them. PlainSheet is that job, automated. A trial
+participant asks questions about their information sheet and gets answers at the reading
+level they choose, with a citation to the exact paragraph. Ask it for medical advice and it
+refuses, every time, and tells you who to ask instead. Study teams get a report on the sheet
+itself: which sections are hard to read, which words are jargon.
+</Plain>
+<Eng>
+A multi-step tool-using agent over ingested participant information sheets. Hand-written
+orchestration loop (bounded, max 6 steps) over the tool-use stop reason, with a typed tool
+registry, per-step trace events surfaced live in the UI, and hard system rules: every claim
+cites a retrieved chunk, say so when the document does not contain the answer, never give
+medical advice. Hybrid retrieval: pgvector cosine similarity fused with Postgres full-text
+search via reciprocal rank fusion, because clinical documents punish embedding blur on exact
+terms like drug names and visit numbers. Local MiniLM embeddings behind a port. An MCP
+server exposes the same use cases to any MCP client.
+</Eng>
+
+## How it was made
+
+<Plain>
+It was built in three evenings, and the point was to build it the formal way at speed: a
+design document before code, a launch checklist before the link went out, and a public test
+suite that grades the AI's answers on every change. The test suite earned its keep on day
+one, catching two real bugs the moment it first ran.
+</Plain>
+<Eng>
+Hexagonal monorepo: a framework-free core defining ports (ChunkRepository, LlmProvider,
+EmbeddingProvider, Logger, Clock), adapters for Postgres and two LLM vendors, one
+composition root. The agent loop is tested against in-memory fakes; the Postgres adapter
+against a real pgvector instance in CI. Provider-agnostic by demonstration, not claim: the
+Gemini adapter was added after the Anthropic one without touching a line of core. Cost-aware
+model split, cheap model for tool steps, stronger model for the user-facing answer, with
+cost and latency logged per step. Evals as a first-class discipline: golden sets per sheet
+including adversarial advice-seeking and not-in-document cases; scorers for citation
+faithfulness, refusal correctness, reading-level compliance, latency and cost; results
+written to a versioned RESULTS.md in CI so regressions show up in a PR diff. Current run:
+25/25. Design decisions documented with rejected alternatives, including a semantic answer
+cache rejected on safety grounds and fine-tuning rejected with reasons. DESIGN.md, a
+production readiness review, a runbook and gitleaks/CodeQL in CI are all in the public repo.
+</Eng>
+
+## What it proves
+
+<Plain>
+Three things at once: that I can ship a working AI product fast, that I build it with the
+discipline of a much larger team, and that I understand this domain as a human first. The
+whole thing is public, code, tests and receipts, so nothing here has to be taken on trust.
+</Plain>
+<Eng>
+Agent orchestration owned rather than outsourced to an SDK runner, retrieval engineering
+chosen per the document type, guardrails enforced by evals rather than prompt hope, and the
+full production-readiness artifact set on a three-evening build. The repo is the receipt.
+</Eng>

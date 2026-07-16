@@ -1,0 +1,105 @@
+---
+kind: case
+slug: the-backend-that-would-have-404d
+title: "The backend that would have 404'd"
+hook: "The swap backend looked finished. Every single API call in it would have failed in production."
+date: 2026-02
+project: cache-wallet
+tags: [web3, architecture, verification, ai-assisted]
+stamps: [SYMPTOM, GROUND TRUTH CHECK, ROOT CAUSE, FIX, VERIFIED]
+metrics:
+  - { label: "Wrong API paths documented", value: "8" }
+  - { ref: "cache.mainnetSwap" }
+media:
+  - id: cache-wrongpaths-table
+    kind: diagram
+    status: pending
+    capture_note: "Styled wrong-vs-right endpoint table, sanitised"
+confidentiality: cache-content-guarded
+---
+
+<Step n={1} phase="symptom">
+  <Plain>
+    Early in the wallet build, a full working session produced what looked like the swap
+    backend: clean code, sensible structure, plausible everywhere. I use AI heavily when I
+    build, and this was one of those days where the machine had been very productive.
+    Something about it nagged at me anyway. Plausible is not the same as true.
+  </Plain>
+  <Eng>
+    Session 2 delivered a swap backend that proxied raw HTTP calls to the liquidity
+    provider's API. It compiled, the shapes looked right, the error handling was tidy. The
+    endpoints were guessed. Under load or in production, every one of them would have
+    returned 404. LLM-generated integration code fails exactly this way: syntactically
+    confident, referentially wrong.
+  </Eng>
+</Step>
+
+<Step n={2} phase="ground-truth-check">
+  <Plain>
+    Before building anything on top of it, I did the unglamorous thing: I tested every
+    assumption against reality. I called the real service directly, by hand, and read the
+    actual source code of the official toolkit rather than trusting a summary of it.
+  </Plain>
+  <Eng>
+    I verified each endpoint with curl against the live API and read the provider's SDK
+    source. Two findings. First, the guessed paths did not exist. Second, and more
+    fundamental: the raw API never returns the typed data or order struct at all. The SDK
+    builds them client-side. The entire proxy-the-API architecture could not work, no
+    matter how the paths were spelled.
+  </Eng>
+</Step>
+
+<Step n={3} phase="root-cause">
+  <Plain>
+    So the problem was not a few wrong addresses. The whole approach was built on a wrong
+    belief about how the partner system works. Patching it would have meant polishing
+    something that could never function. The honest conclusion was: discard it.
+  </Plain>
+  <Eng>
+    Root cause was architectural, not typographical. The design assumed server-side order
+    construction by the provider; in reality order construction is a client-side SDK
+    responsibility. I wrote up all 8 wrong-versus-correct paths in a table, marked the
+    session's output as discarded, and recorded why, so no future session could
+    reintroduce the approach.
+  </Eng>
+</Step>
+
+<Step n={4} phase="fix">
+  <Plain>
+    The rebuild used the official toolkit directly, run quietly on our own server, and it
+    was simpler than the wrong version. That is the usual reward for correcting an
+    architecture early: less code, not more.
+  </Plain>
+  <Eng>
+    Rebuilt on the official SDKs used headless server-side: SDK-built orders, EIP-712
+    typed-data signing in our flow, relayer submission. Windows tooling threw side
+    quests, the ORM's CLI would not run migrations, so I ran them programmatically via a
+    Node script rather than fight the tool. Deviations documented, as always.
+  </Eng>
+</Step>
+
+<Step n={5} phase="verified">
+  <Plain>
+    The proof came end to end: the wallet's first real swap on a live network with real
+    money, the entire journey working on the first architecture that was actually true.
+  </Plain>
+  <Eng>
+    Verification was the first successful mainnet swap, USDC to WETH on Base: allowance
+    check, approval, quote, sign, submit, filled. The wrong-paths table stayed in the
+    project docs as a tripwire for regressions of understanding, not just regressions of
+    code.
+  </Eng>
+</Step>
+
+<Takeaway>
+  Verification is a skill, separate from writing code. AI made the wrong backend fast;
+  ground truth made the right one possible. I test what the machine believes before I
+  build on it.
+</Takeaway>
+
+<ProductClose>
+  Every team shipping with AI assistance has this failure mode in their codebase right
+  now: confident code resting on an unverified assumption. The fix is a person who reads
+  source, calls the real API, and is willing to throw away a day's plausible work. That
+  discipline is what you are hiring.
+</ProductClose>

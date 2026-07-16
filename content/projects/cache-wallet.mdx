@@ -1,0 +1,86 @@
+---
+kind: project
+slug: cache-wallet
+title: "Cache Wallet"
+strap: "Founding engineer on a crypto wallet. Rescued an abandoned codebase, shipped across 7 networks, moved real money on mainnet."
+tier: 1
+role: "Founding Engineer (freelance), Jan 2026 to May 2026"
+engagement: "A fixed freelance engagement to get the product launch-ready. It ended when that was delivered."
+stack: [TypeScript, NestJS, PostgreSQL, "React Native (Expo)", Solidity, Thirdweb, "Ethers.js"]
+tags: [web3, live-product-work, flagship]
+featured: true
+metrics:
+  - { label: "EVM networks", value: "7" }
+  - { label: "Dependency vulnerabilities", value: "60 to 8" }
+  - { label: "Mainnet swap", value: "USDC to WETH on Base, live funds" }
+media:
+  - { id: cache-architecture, kind: diagram, status: pending, capture_note: "Three-repo system map, 7 chains" }
+  - { id: cache-swap-sequence, kind: diagram, status: pending, capture_note: "Shared with case 01" }
+cases: [swap-failure-on-every-chain, the-backend-that-would-have-404d, sixty-vulnerabilities-to-eight]
+confidentiality: cache-content-guarded
+---
+
+## What it is
+
+<Plain>
+A mobile crypto wallet startup brought me in as founding engineer. The codebase had been
+abandoned mid-flight by a previous team. My job was to make the product real: working, safe,
+and ready to launch. I was the sole engineer across the backend, the mobile app, the smart
+contracts and the infrastructure.
+</Plain>
+<Eng>
+Sole engineer across four surfaces: NestJS/PostgreSQL backend, React Native (Expo) mobile
+client, Solidity contracts, and infrastructure. Inherited an abandoned codebase; delivered a
+launch-ready wallet spanning 7 EVM networks.
+</Eng>
+
+## What was built
+
+<Plain>
+The headline feature lets people swap one token for another without holding the special coin
+usually needed to pay network fees. That sounds small and is quietly hard: it has to work the
+same way across seven different blockchains, each with its own quirks. I also built the way
+money enters the wallet from a bank card, a four-level rewards programme, and the account
+recovery system for people who lose access.
+</Plain>
+<Eng>
+Gasless swaps, same-chain and cross-chain: quote aggregation, EIP-712 signed orders, and a
+provider-agnostic execution layer, so the mobile client never knows which liquidity source
+fills it. Per-chain RPC routing absorbs gas estimation, nonce and signature-recovery quirks
+behind one internal API. ERC-20 allowance and approval calldata builders. On-device key
+custody: private keys never leave the device. Fiat on-ramp aggregation via Meld (Banxa,
+Transak, MoonPay) with widget sessions and webhook receivers, plus an off-ramp foundation
+with a provider-agnostic interface and mock client that let frontend and backend proceed in
+parallel before provider selection. A four-tier NFT loyalty and on-chain referral system
+(capped supply, Thirdweb signature minting, EIP-712 vouchers). Solidity V2 modules:
+RecoverySwitch and ScheduledTransfer with a two-step on-chain enable and Safe multi-sig
+management, deployed to Base Sepolia and ETH Sepolia, with a pre-mainnet compatibility audit
+that flagged oracle-staleness and fee-collection risks.
+</Eng>
+
+## The hard parts
+
+<Plain>
+Three of them are written up as full cases: the morning every swap on every network failed
+three weeks before launch, the day I proved a finished-looking backend could never have
+worked, and the security pass that took sixty known weaknesses down to eight before any user
+was exposed.
+</Plain>
+<Eng>
+See the three cases linked below. Beyond those: end-to-end testing with real funds on
+mainnet, and a documentation discipline of numbered session reports, how-to-revert sections
+and post-mortems that kept a fast solo build auditable.
+</Eng>
+
+## What it proves
+
+<Plain>
+That I can take something half-built and unfamiliar, own every layer of it alone, and get it
+to the point where real money moves safely. And that I document as I go, so the work outlives
+the engagement.
+</Plain>
+<Eng>
+Full-stack ownership under launch pressure: protocol-level debugging, security hardening as
+habit, provider-agnostic architecture, and verification with live funds as the completion
+bar.
+</Eng>

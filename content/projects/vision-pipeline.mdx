@@ -1,0 +1,45 @@
+---
+kind: project
+slug: vision-pipeline
+title: "The weekend image classifier"
+strap: "7,975 product photos sorted into 7 categories by a local AI model in a weekend, for a total cloud bill of zero."
+tier: 1
+role: "Freelance software engineer, Apr 2026"
+stack: [Python, Ollama, "qwen2.5vl:7b"]
+tags: [ai-ml, data-engineering, pragmatism]
+featured: false
+metrics:
+  - { label: "Images classified", value: "7,975, none left uncategorised" }
+  - { label: "Cloud cost", value: "£0" }
+media:
+  - { id: vision-throughput-chart, kind: diagram, status: pending, capture_note: "Progress chart with checkpoint marks" }
+  - { id: vision-category-grid, kind: image, status: pending, capture_note: "Category montage, client nod required" }
+cases: [eight-thousand-images-in-a-weekend]
+confidentiality: cwtch-client-data-nod
+---
+
+## What it is
+
+<Plain>
+Nearly eight thousand supplier product photos, none labelled, all needed sorting into
+categories before the store could launch. Doing it by hand takes about a month. I did it in
+a weekend with a free AI model running on my own machine, wrapped in a pipeline built to
+survive crashes.
+</Plain>
+<Eng>
+Batch vision-model classification: 7,975 images into 7 categories using qwen2.5vl:7b served
+locally by Ollama. Parallel workers, checkpoint file as source of truth, resume-safe across a
+multi-hour run that was interrupted several times. Output feeds the storefront catalogue
+builder. Full story in the linked case.
+</Eng>
+
+## What it proves
+
+<Plain>
+Knowing when the expensive option is unnecessary. The clever part was not the AI, it was the
+plumbing that let a free model finish a real job reliably.
+</Plain>
+<Eng>
+Local-inference economics, batch reliability engineering, and honest taxonomy design that
+keeps a small model's boundary errors cheap to correct.
+</Eng>
