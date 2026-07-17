@@ -15,25 +15,23 @@ function Voiced({ plain, eng }: { plain: string; eng: string }) {
 export default function Home() {
   return (
     <div className="hero-glow">
+      {/* Above the fold renders statically: wrapping it in a reveal would hide the LCP
+          element until hydration. Reveals start at the featured grid. */}
       <section className="home-hero">
-        <Reveal>
-          <div className="kicker">{hero.kicker}</div>
-          <h1>
-            <Voiced {...hero.title} />
-          </h1>
-          <p className="home-sub">
-            <Voiced {...hero.sub} />
-          </p>
-        </Reveal>
+        <div className="kicker">{hero.kicker}</div>
+        <h1>
+          <Voiced {...hero.title} />
+        </h1>
+        <p className="home-sub">
+          <Voiced {...hero.sub} />
+        </p>
       </section>
 
       <section className="proof-strip">
         {proof.map((p, i) => (
-          <Reveal key={i} delay={i * 60}>
-            <div className="proof-card">
-              <Voiced {...p} />
-            </div>
-          </Reveal>
+          <div key={i} className="proof-card">
+            <Voiced {...p} />
+          </div>
         ))}
       </section>
 

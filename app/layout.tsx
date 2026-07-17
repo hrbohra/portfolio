@@ -8,7 +8,7 @@ import { person } from '@/content/facts';
 import { statusStrip, availability } from '@/content/home';
 
 const grotesk = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-ui' });
-const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500', '700'], variable: '--font-mono' });
+const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
   title: { default: 'Harsh Bohra', template: '%s · Harsh Bohra' },
