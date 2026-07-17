@@ -14,24 +14,70 @@ plans first, AI-assisted, verified, written up.
 </Plain>
 <Eng>
 Next.js App Router, fully static export. No database, no server state, no forms. Content
-is MDX with Zod-validated frontmatter; the Plain and Engineer voices are paired semantic
-components, both pre-rendered into the static HTML, swapped by a root data attribute with
-zero layout shift. Facts and metrics come from a single typed constants module; site copy
-may not retype a number. Media lives on Cloudflare R2 behind its own subdomain, so the
-repository stays light and the bandwidth bill stays zero. Hosted on Vercel's free tier.
+is MDX with Zod-validated frontmatter; the two voices are paired semantic components, both
+prerendered into the static HTML, swapped by a root data attribute with zero layout shift.
+Facts and metrics come from a single typed constants module; site copy may not retype a
+number. Media lives on Cloudflare R2 behind its own subdomain, except the small receipts
+on this page, which ship with the site. Hosted on Vercel's free tier.
 </Eng>
 
 ## Receipts
 
 <Plain>
-The performance scores, the build checks and the design decisions are published here as
-they land, not described in the abstract.
+Not descriptions of quality: measurements of it, taken against the live site, with the
+full reports linked.
 </Plain>
 <Eng>
-Published as they land: Lighthouse runs, the CI pipeline (typecheck, content lint including
-an em-dash ban and a banned-word list, schema validation, a facts-consistency gate that
-fails the build if site copy drifts from the CV, link checking), and the architecture
-decision records in the public repository, including the options that were rejected.
+Captured 17 July 2026 against production. Lighthouse 12.8.2, emulated mobile, default
+throttling. CI asserts floors on every push; the numbers below are the live-site runs.
 </Eng>
 
-<ReceiptsWall status="pending" note="Lighthouse screenshot, CI badge, bundle table and ADR index land here after first deploy." />
+**Lighthouse, live site, home page:** performance 98 · accessibility 98 · best practices
+96 · SEO 100. Largest contentful paint 1.9s, layout shift 0, total blocking time 150ms.
+[Full report](/receipts/lighthouse-home.report.html) ·
+[CI pipeline](https://github.com/hrbohra/portfolio/actions) ·
+[the workflow file](https://github.com/hrbohra/portfolio/blob/main/.github/workflows/ci.yml)
+
+**First-load JavaScript:** 103 to 106 kB on every page, against a 120 kB budget checked at
+build.
+
+**The rules are executable:** an editorial lint (banned punctuation and vocabulary,
+confidentiality tags) and a metrics guard (every number on this site must exist in the
+canonical facts module) fail the build on violation.
+[Architecture decision records](https://github.com/hrbohra/portfolio/tree/main/docs/adr),
+including the rejected options and one honest deviation.
+
+**Gates catching their own author:**
+[this failed run](https://github.com/hrbohra/portfolio/actions/runs/29580465065) is the
+home redesign scoring 0.65 on performance because the hero was wrapped in a scroll reveal
+and rendered invisible until hydration. The fix shipped 40 minutes later and the
+[next run](https://github.com/hrbohra/portfolio/actions) is green. A wall of unbroken
+green would mean the gates test nothing.
+
+## The site, as tested
+
+<Plain>
+The same page, both voices. This is the whole trick: one site, written twice, one toggle.
+</Plain>
+<Eng>
+Captures from the live site via headless Chrome. Both voices are present in the static
+HTML of every page; the data-mode attribute selects which renders.
+</Eng>
+
+![Home page, plain English voice](/receipts/home-plain.png)
+
+![The same home page, engineer voice: same layout, different claims](/receipts/home-eng.png)
+
+![A case page in engineer voice: the timeline stepper with a dead end left in](/receipts/case-swap-eng.png)
+
+<Plain>
+And the flagship demo, PlainSheet, wearing the same design language: the portfolio and the
+product are one hand.
+</Plain>
+<Eng>
+PlainSheet (plainsheet-demo.vercel.app) shares the token system: same charcoal, amber
+reserved for proof, coral reserved for refusal. Its own receipts (25/25 evals in CI) are
+in its repo.
+</Eng>
+
+![PlainSheet, the live app, in the shared dark instrument design](/receipts/plainsheet-app.png)

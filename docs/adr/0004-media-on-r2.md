@@ -26,3 +26,9 @@ launches never block on capture.
 One extra moving part (bucket + upload script) and eventual-consistency between manifest
 and bucket, guarded by the link checker in CI. Zero egress fees make the cost ceiling of
 the whole site effectively the £10/yr domain.
+
+## Amendment (2026-07-17)
+One scoped exception: the colophon's receipts (four screenshots and one Lighthouse report,
+about 1.4 MB total) live in `public/receipts/` rather than R2. They are self-referential
+evidence about this repo, small, and versioned deliberately with the code they describe.
+Project media (demo videos, project screenshots) remains R2-only per the original decision.
