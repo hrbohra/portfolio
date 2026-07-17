@@ -23,7 +23,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const related = allCases.filter((c) => entry.meta.cases.includes(c.meta.slug));
 
   return (
-    <article className="prose">
+    <article className="wrap prose">
       <section className="hero">
         <span className="stamp stamp-accent">
           {entry.meta.tier === 1 ? 'FLAGSHIP PROJECT' : 'PROJECT'}

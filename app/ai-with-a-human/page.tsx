@@ -12,7 +12,7 @@ export default function AiPage() {
   const page = getPage('ai-with-a-human');
   if (!page) return null;
   return (
-    <article className="prose">
+    <article className="wrap prose">
       <section className="hero">
         <span className="stamp stamp-accent">METHOD</span>
         <h1>{page.meta.title}</h1>

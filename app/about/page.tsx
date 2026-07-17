@@ -9,7 +9,7 @@ export default function AboutPage() {
   const page = getPage('about');
   if (!page) return null;
   return (
-    <article className="prose">
+    <article className="wrap prose">
       <section className="hero">
         <h1>{page.meta.title}</h1>
         {page.meta.strap && <p className="hook">{page.meta.strap}</p>}

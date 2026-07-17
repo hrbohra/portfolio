@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: 'Work' };
 export default function WorkIndex() {
   const projects = getProjects();
   return (
-    <>
+    <div className="wrap">
       <section className="hero">
         <h1>The work</h1>
         <p className="hook">
@@ -37,6 +37,6 @@ export default function WorkIndex() {
           </Link>
         ))}
       </div>
-    </>
+    </div>
   );
 }

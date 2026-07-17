@@ -9,7 +9,7 @@ export default function ColophonPage() {
   const page = getPage('colophon');
   if (!page) return null;
   return (
-    <article className="prose">
+    <article className="wrap prose">
       <section className="hero">
         <span className="stamp stamp-accent">CASE ZERO</span>
         <h1>{page.meta.title}</h1>

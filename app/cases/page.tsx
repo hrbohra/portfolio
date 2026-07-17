@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: 'The cases' };
 export default function CasesIndex() {
   const cases = getCases();
   return (
-    <>
+    <div className="wrap">
       <section className="hero">
         <h1>The cases</h1>
         <p className="hook">
@@ -41,6 +41,6 @@ export default function CasesIndex() {
           </Link>
         ))}
       </div>
-    </>
+    </div>
   );
 }

@@ -9,6 +9,7 @@ function currentMode(): Mode {
   return document.documentElement.dataset.mode === 'eng' ? 'eng' : 'plain';
 }
 
+/** Segmented voice toggle: PLAIN ENGLISH | UNDER THE HOOD (labels per design; mechanic unchanged). */
 export function ModeToggle() {
   const [mode, setMode] = useState<Mode>('plain');
   const [mounted, setMounted] = useState(false);
@@ -18,8 +19,7 @@ export function ModeToggle() {
     setMounted(true);
   }, []);
 
-  function toggle() {
-    const next: Mode = mode === 'plain' ? 'eng' : 'plain';
+  function pick(next: Mode) {
     document.documentElement.dataset.mode = next;
     try {
       localStorage.setItem('voice-mode', next);
@@ -30,21 +30,18 @@ export function ModeToggle() {
     setMode(next);
   }
 
+  const active = mounted ? mode : 'plain';
   return (
-    <button
-      type="button"
-      className="mode-toggle"
-      onClick={toggle}
-      aria-pressed={mode === 'eng'}
-      title="This whole site is written twice. Try me."
-    >
-      <span className="mode-toggle-label">Reading as</span>
-      <span className="mode-toggle-value">
-        {mounted ? (mode === 'plain' ? 'Recruiter' : 'Engineer') : 'Recruiter'}
-      </span>
+    <div className="voice-toggle" role="group" aria-label="Reading voice">
+      <button type="button" aria-pressed={active === 'plain'} onClick={() => pick('plain')}>
+        PLAIN ENGLISH
+      </button>
+      <button type="button" aria-pressed={active === 'eng'} onClick={() => pick('eng')}>
+        UNDER THE HOOD
+      </button>
       <span aria-live="polite" className="visually-hidden">
-        {mode === 'plain' ? 'Now reading the plain version' : 'Now reading the engineer version'}
+        {active === 'plain' ? 'Now reading the plain English version' : 'Now reading the technical version'}
       </span>
-    </button>
+    </div>
   );
 }

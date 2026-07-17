@@ -24,7 +24,7 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
   const next = all[(idx + 1) % all.length];
 
   return (
-    <article className="prose">
+    <article className="wrap prose">
       <section className="hero">
         <span className="stamp stamp-accent">CASE FILE</span>
         <h1>{entry.meta.title}</h1>
