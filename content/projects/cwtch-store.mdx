@@ -10,6 +10,7 @@ tags: [live-product, e-commerce, flagship]
 featured: true
 links:
   - { label: "Live site", url: "https://cwtchcomfort.com" }
+  - { label: "Engineering write-up", url: "https://github.com/hrbohra/cwtch-work-chronicles" }
 metrics:
   - { label: "Products", value: "~6,434 across 12 supplier brands" }
   - { label: "Cart first-load JavaScript", value: "221 kB" }
@@ -71,6 +72,22 @@ vanish, even if our email provider dies at the worst moment.
 See the linked cases. The general pattern of this project: a solo engineer is also the
 reviewer, so I run scheduled audits of my own production work and treat the findings exactly
 as if a colleague had shipped them.
+</Eng>
+
+## Read the engineering
+
+<Plain>
+The full behind-the-scenes write-up is public: seven case studies on the data pipelines, the
+configurators, and the commerce, with the client's private details (suppliers, pricing,
+infrastructure) kept out.
+[cwtch-work-chronicles](https://github.com/hrbohra/cwtch-work-chronicles).
+</Plain>
+<Eng>
+Since the storefront is a client's production system, the deep dives live in a
+source-available companion repo rather than the app's private code:
+[cwtch-work-chronicles](https://github.com/hrbohra/cwtch-work-chronicles). Seven documents
+plus sanitised snippets on the 12-source ETL, the configurator engine, the persist-before-notify
+order path, and the performance work, with supplier identities, trade terms and secrets omitted.
 </Eng>
 
 ## What it proves

@@ -9,6 +9,8 @@ engagement: "A fixed freelance engagement to get the product launch-ready. It en
 stack: [TypeScript, NestJS, PostgreSQL, "React Native (Expo)", Solidity, Thirdweb, "Ethers.js"]
 tags: [web3, live-product-work, flagship]
 featured: true
+links:
+  - { label: "Public proof: the techniques, verified", url: "https://github.com/hrbohra/wallet-engineering-patterns" }
 metrics:
   - { label: "EVM networks", value: "7" }
   - { label: "Dependency vulnerabilities", value: "60 to 8" }
@@ -70,6 +72,23 @@ was exposed.
 See the three cases linked below. Beyond those: end-to-end testing with real funds on
 mainnet, and a documentation discipline of numbered session reports, how-to-revert sections
 and post-mortems that kept a fast solo build auditable.
+</Eng>
+
+## Verify it yourself
+
+<Plain>
+This was a client product under an NDA, so I cannot show its code. Instead I rebuilt the
+public techniques it relied on, from scratch, as an open repository you can read and run:
+[wallet-engineering-patterns](https://github.com/hrbohra/wallet-engineering-patterns). It
+proves the same skills without touching anything confidential.
+</Plain>
+<Eng>
+The engagement is under NDA, so rather than ask you to take the work on trust, I published a
+clean-room repo that reimplements the public standards behind it from the specifications:
+[wallet-engineering-patterns](https://github.com/hrbohra/wallet-engineering-patterns).
+EIP-712 typed-data hashing built on keccak-256 and cross-checked against viem byte-for-byte,
+the EOA-versus-EIP-1271 verification split, a provider-agnostic execution router, and
+multi-chain quirk absorption. No client code, only the techniques, with tests.
 </Eng>
 
 ## What it proves
