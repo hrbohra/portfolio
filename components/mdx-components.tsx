@@ -1,3 +1,4 @@
+import { TrafficReport } from '@/components/traffic-report';
 import type { ReactNode } from 'react';
 import { timeline } from '@/lib/timeline';
 
@@ -125,6 +126,7 @@ export function MediaSlot({
 }
 
 export const mdxComponents = {
+  TrafficReport,
   Plain,
   Eng,
   Step,

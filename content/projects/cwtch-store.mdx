@@ -14,6 +14,7 @@ links:
 metrics:
   - { label: "Products", value: "~6,434 across 12 supplier brands" }
   - { label: "Cart first-load JavaScript", value: "221 kB" }
+  - { label: "Production, 30 days", value: "486k requests, 0.42% server errors" }
 media:
   - { id: cwtch-homepage-tour, kind: video, status: pending, capture_note: "45s home, mega-menu, category" }
   - { id: cwtch-configurator-sofa, kind: video, status: pending, capture_note: "30s two-axis configurator" }
@@ -73,6 +74,27 @@ See the linked cases. The general pattern of this project: a solo engineer is al
 reviewer, so I run scheduled audits of my own production work and treat the findings exactly
 as if a colleague had shipped them.
 </Eng>
+
+## Thirty days in production
+
+<Plain>
+This is the store as it actually runs. Over thirty days in August and September 2026 it
+answered close to half a million requests, peaking near 29,000 in a single day, and served
+65 GB of pages and product photography. Server errors stayed under half a percent. Google,
+Apple and Meta crawl the catalogue constantly, which is how thousands of products get found,
+and an automated check has confirmed the site is up every minute of every day.
+</Plain>
+<Eng>
+Production numbers from the store's Cloudflare analytics, aggregated. 486k requests in 30 days,
+a 28.6k-request peak day, 0.42% 5xx. The read path has no database: the catalogue is built
+offline into a JSON file the site reads, product images come from a separate media host on a
+CDN, and 88% of requests were answered at the edge without reaching an origin. Sentry
+uptime checks run once a minute (43,210 in the window), so an outage shows up in Sentry within a
+minute. Search and platform crawlers (Applebot, Googlebot, Meta, Bingbot) account for about
+15% of requests; I treat them as a load profile to design for, not noise.
+</Eng>
+
+<TrafficReport />
 
 ## Read the engineering
 
