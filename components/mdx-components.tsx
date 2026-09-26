@@ -1,4 +1,5 @@
 import { TrafficReport } from '@/components/traffic-report';
+import { VoiceprintReport } from '@/components/voiceprint-report';
 import type { ReactNode } from 'react';
 import { timeline } from '@/lib/timeline';
 
@@ -127,6 +128,7 @@ export function MediaSlot({
 
 export const mdxComponents = {
   TrafficReport,
+  VoiceprintReport,
   Plain,
   Eng,
   Step,

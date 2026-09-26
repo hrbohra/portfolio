@@ -1,0 +1,164 @@
+---
+kind: project
+slug: voiceprint
+title: "Voiceprint"
+strap: "Give it a speaker's messages and it measures how they write, proves each habit on text it never saw, and hands the result to an AI so it writes the same way. Open source, runs on one laptop."
+tier: 1
+role: "Open-source, 2026. Built for Kiki's 10,000-conversation corpus; published."
+stack: [Python, PyTorch, "spaCy (transformer)", "Hugging Face", "Claude API", Presidio, scikit-learn, TypeScript]
+tags: [open-source, ai-ml, nlp, flagship]
+featured: false
+links:
+  - { label: "Source, results, build log", url: "https://github.com/hrbohra/voiceprint" }
+  - { label: "The Kiki integration", url: "https://kiki-portfolio-one.vercel.app/ai" }
+metrics:
+  - { label: "Planted rules recovered", value: "6 of 6, zero false" }
+  - { label: "Writer identified, 1 tweet", value: "75% of 10 brands" }
+  - { label: "Decisions recorded", value: "53" }
+media: []
+cases: []
+confidentiality: public-ok
+---
+
+## What it is
+
+<Plain>
+Every company says it has a "tone of voice", and when a team asks an AI to write in it, the
+instruction is usually a line like "be warm and friendly". That describes every company, so it
+describes none. Voiceprint does it with evidence. You give it a speaker's past messages (a
+brand's support replies, a founder's emails, a novelist's books) and it works out what makes
+that writing *theirs*. It proves each habit on messages it hasn't seen, then gives an AI a short
+guide so it writes the same way, without changing what it says.
+</Plain>
+<Eng>
+A local-first stylometry and voice-transfer pipeline. It anonymises a corpus (Presidio on
+spaCy's transformer NER, with consistent typed placeholders), extracts about 155 features per
+turn across surface, syntax, affect, dialogue and social acts and conversation structure, and
+contrasts the target with a reference. The contrast uses bootstrap confidence intervals resampled
+by conversation, Hedges' g, Cliff's δ and Monroe log-odds keyness. It then induces rules two
+ways, statistically and through a frontier model reading a compressed brief, and keeps a rule
+only if a blind judge on held-out conversations finds it distinctive (one-sided Fisher exact
+test). Outputs: a human-readable voice guide, prompt packs at three lengths, k-anonymous
+exemplars, SFT and DPO files, and a logistic scorer that also ships as parity-tested TypeScript.
+</Eng>
+
+## Why it exists
+
+<Plain>
+Kiki, a trust-based home-swapping community, has about ten thousand real conversations with its
+members. Their product writes introductions with AI, and the obvious next step is making that AI
+sound like Kiki. The obvious way to do it (train a model on members' private messages) is the
+wrong one. I built the careful version. It measures the voice, keeps members' words out of the
+output, and only ever shapes tone, never facts.
+</Plain>
+<Eng>
+Built for a real constraint: a private DM corpus, a product rule that content comes only from a
+trust graph, and one Windows laptop with an 8 GB GPU. That ruled out fine-tuning on members'
+text and ruled out pasting the corpus into a model (about 30× the tokens, and raw text leaving
+the machine). What was left is measure-then-summarise: the frontier model only ever reads
+statistics and a small k-anonymous sample.
+</Eng>
+
+<VoiceprintReport />
+
+## How it's built
+
+<Plain>
+Six stages, one after another, on one laptop. Private text is anonymised before anything reads it.
+The machine then scores every message for things like length, rhythm, emoji placement,
+formality, apologies and thanks, and how it responds to the message before it. It compares those
+scores with other writers, and turns the real differences into rules in plain English. Each rule
+must hold on conversations the system never trained on, or it's thrown away.
+</Plain>
+<Eng>
+- **Features.** spaCy `en_core_web_trf` on the GPU (with CuPy pinned). Sentiment with RoBERTa, 28
+  GoEmotions as presence flags, dialogue acts from a SILICONE-trained DeBERTa conditioned on the
+  previous turn, and social acts through per-sentence NLI (DeBERTa-v3-large) with strict cue
+  phrases. Situations come from bge-large, HDBSCAN and class-based TF-IDF. Every model is pinned
+  to a commit hash.
+- **LLM layer.** Anthropic (default), OpenAI, Gemini and Ollama behind one router, with a hard
+  GBP budget, a SQLite prompt cache, provider-aware retries (server `retryDelay`, learned
+  per-minute quotas, same-provider failover), and structured output validated with Pydantic.
+- **Privacy tiers.** Local-first (the default) sends only a brief and k-anonymous samples.
+  Frontier-direct is refused without an explicit data-processing acknowledgement. A memorisation
+  check fails any run whose output contains a rare corpus 8-gram.
+- **Operations.** Every stage and every 512-turn block is checkpointed. A low-power mode runs at
+  idle priority with a thermal guard that keeps the GPU under its throttle point. 37 tests,
+  including a Node-run parity test of the TypeScript scorer.
+</Eng>
+
+## Decisions that matter
+
+<Plain>
+Fifty-three decisions are written down with their reasons. Four do most of the work. A voice is
+only defined against someone else, so you choose that comparison with care. A rule the AI
+suggests counts for nothing until it survives a blind test. Rules that would change *what* is
+said are kept apart from rules about *how*. And private words never leave the laptop.
+</Plain>
+<Eng>
+- **The reference defines the voice.** Kiki is contrasted with comparable brands, never with its
+  own members. "Brand vs its customers" measures company-vs-customer. I caught exactly that bug in
+  my own evaluation (a pooled "customer" speaker among the brands) and published the correction.
+- **Verification is distinctiveness, not truth.** On a control corpus with nothing planted, the
+  model proposed five plausible rules that were equally true of everyone. The blind held-out
+  check rejected all five. A fixed margin was replaced by Fisher's exact test when it rejected
+  real but rare habits.
+- **Strength is calibrated to evidence.** An overstated but distinctive rule ("usually", when
+  held-out shows 56%) is recalibrated rather than dropped.
+- **Style-only for facts-only products.** Fidelity testing showed some verified rules carry
+  content, such as "redirect to a private link". Products like Kiki take style-only packs.
+</Eng>
+
+## Scope
+
+<Plain>
+It learns how someone writes, and it helps an AI write that way. It doesn't learn facts, doesn't
+rank or judge people, and never quotes anyone. Anything it outputs must be built from phrases
+that appear across several conversations, never from one person's words.
+</Plain>
+<Eng>
+In scope: style profiles, verified rules, prompt packs, an on-voice scorer and style-only
+fine-tuning pairs. Out of scope: facts, retrieval, matching or ranking, and quoting (enforced by
+k-anonymity on exemplars plus the memorisation check). English only; non-English turns are
+detected and set aside.
+</Eng>
+
+## How to use it
+
+<Plain>
+It's a command-line tool. Point it at an export of conversations, say whose voice you want and
+who to compare them with, and it writes a folder containing a readable voice guide and the
+pieces an app needs. The full walkthrough, written for Kiki, is on the Kiki page linked above.
+</Plain>
+<Eng>
+```
+pip install -e ".[gpu,anthropic]" && python -m spacy download en_core_web_trf
+voiceprint doctor
+voiceprint inspect conversations.jsonl
+VOICEPRINT_LOW_POWER=1 voiceprint extract conversations.jsonl \
+  -s "Brand" -r "PeerA" -r "PeerB" -r "PeerC" -o voice/
+voiceprint score voice/voice.json "Thanks for flagging this, we'll take a look."
+voiceprint eval planted        # the known-answer test
+```
+Output: `voice/VOICE.md` (rules with target vs reference compliance and p-values),
+`prompt_pack/`, `voice.json`, `voiceScorer.ts`, and `sft.jsonl` / `dpo.jsonl`. In an app,
+`fromVoiceprint({ tonePack, voiceJson })` yields a voice provider plus `pickMostOnVoice` for
+best-of-N.
+</Eng>
+
+## What it proves
+
+<Takeaway>
+<Plain>
+That I can take a fuzzy brief ("make the AI sound like us"), turn it into something measurable,
+build it end to end on modest hardware, and report the results honestly, including the parts
+that didn't work first time and the one mistake I caught in my own evaluation.
+</Plain>
+<Eng>
+Applied NLP depth (stylometry, dialogue pragmatics, effect-size statistics), LLM engineering
+under real constraints (privacy tiers, budgets, provider failure modes, verification against
+self-deception), and evaluation discipline: a known-answer test with a null control, held-out
+attribution, a data-efficiency curve, an ablation, and a fidelity test with content preservation.
+Everything is in the repo and reproducible, and the build log records all 53 decisions.
+</Eng>
+</Takeaway>

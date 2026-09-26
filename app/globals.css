@@ -255,3 +255,50 @@ h1, h2, h3 { line-height: 1.2; }
   .tr-axis { font-size: 20px; }
   .tr-label { font-size: 22px; }
 }
+
+/* ── Voiceprint report: HTML charts positioned by percentage (readable at phone width), two validated series ── */
+.vp-report { --vp-s1: #b88535; --vp-s2: #4f86d6; --vp-s0: #3a414d; }
+.vp-s1 { background: var(--vp-s1); } .vp-s2 { background: var(--vp-s2); } .vp-s0 { background: var(--vp-s0); }
+.vp-fig { margin: 0; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.vp-stack { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
+.vp-pipe { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; counter-reset: none; }
+.vp-step { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 12px; border: 1px solid var(--border-faint); border-radius: 10px; background: var(--bg-inset); min-width: 0; }
+.vp-step:not(:last-child)::after { content: "›"; position: absolute; right: -8px; top: 50%; transform: translateY(-50%); color: var(--text-faint); font-family: var(--mono); font-size: 13px; }
+.vp-step-k { font-family: var(--mono); font-size: 10px; color: var(--amber); }
+.vp-step-t { font-size: 14px; font-weight: 600; color: var(--text); }
+.vp-step-s { font-size: 12px; line-height: 1.45; color: var(--text-dim); }
+.vp-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--text-dim); }
+.vp-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.vp-sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.vp-hbars { display: flex; flex-direction: column; gap: 12px; }
+.vp-hlab { font-size: 13px; color: var(--text-body); margin-bottom: 5px; }
+.vp-hb { display: grid; grid-template-columns: minmax(0, 1fr) 42px; align-items: center; gap: 10px; }
+.vp-hb + .vp-hb { margin-top: 3px; }
+.vp-track { position: relative; height: 11px; border-radius: 4px; background: var(--bg-inset); }
+.vp-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; }
+.vp-chance { position: absolute; left: 10%; top: -3px; bottom: -3px; border-left: 1px dashed var(--text-faint); }
+.vp-hb:hover .vp-fill { opacity: 0.8; }
+.vp-hv { font-family: var(--mono); font-size: 12px; color: var(--text); text-align: right; }
+.vp-haxis { position: relative; display: flex; justify-content: space-between; margin-right: 52px; padding-bottom: 16px; font-family: var(--mono); font-size: 10px; color: var(--text-faint); }
+.vp-haxis-chance { position: absolute; left: 10%; top: 14px; transform: translateX(-50%); white-space: nowrap; }
+.vp-mid { position: absolute; left: 50%; transform: translateX(-50%); }
+.vp-cols { height: 170px; display: flex; align-items: flex-end; gap: 7px; }
+.vp-col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 5px; }
+.vp-col-v { font-family: var(--mono); font-size: 11px; color: var(--text); }
+.vp-col-bar { width: 100%; max-width: 40px; border-radius: 4px 4px 0 0; background: var(--vp-s1); }
+.vp-col:hover .vp-col-bar { opacity: 0.8; }
+.vp-col-x { font-family: var(--mono); font-size: 10px; color: var(--text-faint); padding-top: 3px; }
+.vp-dp { display: flex; flex-direction: column; gap: 14px; }
+.vp-dtrack { position: relative; height: 14px; margin: 0 8px; border-top: 1px solid var(--border); top: 7px; }
+.vp-dot { position: absolute; top: -8px; width: 15px; height: 15px; margin-left: -7.5px; border-radius: 50%; border: 2px solid var(--bg-raised); }
+.vp-dot:hover { transform: scale(1.2); }
+.vp-dvals { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+.vp-daxis { display: flex; justify-content: space-between; margin: 0 8px; font-family: var(--mono); font-size: 10px; color: var(--text-faint); }
+@media (max-width: 760px) {
+  .vp-pipe { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vp-step:not(:last-child)::after { display: none; }
+}
+.vp-report .tr-grid2 { grid-template-columns: 1fr; }
+/* code in project write-ups (how-to steps) */
+.prose pre { margin: 12px 0; padding: 14px 16px; overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-inset); font-family: var(--mono); font-size: 12.5px; line-height: 1.65; color: var(--text-body); }
+.prose :not(pre) > code { font-family: var(--mono); font-size: 0.88em; padding: 1px 5px; border-radius: 4px; background: var(--bg-inset); border: 1px solid var(--border-faint); color: var(--text); }
