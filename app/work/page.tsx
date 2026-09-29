@@ -20,7 +20,7 @@ export default function WorkPage() {
   const has = (t: string) => items.filter((p) => p.tags.some((x) => x.startsWith(t))).length;
   const stats = [
     { v: items.length, l: 'projects' },
-    { v: has('live-product'), l: 'live in production' },
+    { v: has('live-product'), l: 'in production' },
     { v: has('open-source'), l: 'open source' },
     { v: has('ai-ml'), l: 'with AI or ML inside' },
   ];

@@ -20,7 +20,7 @@ export interface WorkItem {
 
 const FILTERS: { id: string; label: string; match: string[] }[] = [
   { id: 'all', label: 'All', match: [] },
-  { id: 'live', label: 'Live', match: ['live-product', 'live-product-work'] },
+  { id: 'live', label: 'In production', match: ['live-product', 'live-product-work'] },
   { id: 'ai', label: 'AI / ML', match: ['ai-ml', 'nlp'] },
   { id: 'oss', label: 'Open source', match: ['open-source'] },
   { id: 'data', label: 'Data', match: ['data-engineering', 'etl'] },
@@ -33,7 +33,9 @@ const matches = (p: WorkItem, f: string) => {
 };
 
 function status(p: WorkItem): { text: string; live: boolean } {
-  if (p.tags.some((t) => t.startsWith('live-product'))) return { text: 'Live', live: true };
+  // live-product: anyone can open it. live-product-work: shipped and still in use, but not public.
+  if (p.tags.includes('live-product')) return { text: 'Live', live: true };
+  if (p.tags.includes('live-product-work')) return { text: 'In production', live: false };
   if (p.tags.includes('open-source')) return { text: 'Open source', live: false };
   if (p.tags.includes('client-work') || p.tags.includes('research')) return { text: 'Client work', live: false };
   return { text: p.tier === 1 ? 'Shipped' : 'Project', live: false };
