@@ -4,7 +4,9 @@
 // server; filtering only toggles visibility, so the page is complete without JS.
 
 import Link from 'next/link';
-import { useState, type MouseEvent } from 'react';
+import { useState } from 'react';
+import { trace } from '@/lib/trace';
+import { SpotLink } from '@/components/spot-link';
 
 export interface WorkItem {
   slug: string;
@@ -41,32 +43,10 @@ function status(p: WorkItem): { text: string; live: boolean } {
   return { text: p.tier === 1 ? 'Shipped' : 'Project', live: false };
 }
 
-// Deterministic "signal trace" per project: same slug, same line, every build.
-function trace(slug: string, w = 320, h = 44, n = 40): string {
-  let s = 2166136261;
-  for (const c of slug) s = Math.imul(s ^ c.charCodeAt(0), 16777619);
-  const rnd = () => ((s = Math.imul(s ^ (s >>> 15), 2246822507) ^ Math.imul(s ^ (s >>> 13), 3266489909)) >>> 0) / 4294967296;
-  const f1 = 1 + rnd() * 3, f2 = 4 + rnd() * 6, ph = rnd() * 6.28;
-  const pts: string[] = [];
-  for (let i = 0; i <= n; i++) {
-    const x = (i / n) * w;
-    const t = i / n;
-    const y = h / 2 - (Math.sin(t * 6.28 * f1 + ph) * 0.55 + Math.sin(t * 6.28 * f2) * 0.25 + (rnd() - 0.5) * 0.4) * (h * 0.4) * (0.35 + t * 0.65);
-    pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
-  }
-  return `M${pts.join(' L')}`;
-}
-
-function spotlight(e: MouseEvent<HTMLElement>) {
-  const r = e.currentTarget.getBoundingClientRect();
-  e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
-  e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
-}
-
 function FlagCard({ p, n, big }: { p: WorkItem; n: number; big?: boolean }) {
   const st = status(p);
   return (
-    <Link href={`/work/${p.slug}/`} className={`wk-card${big ? ' wk-card-big' : ''}`} onMouseMove={spotlight}>
+    <SpotLink href={`/work/${p.slug}/`} className={`wk-card${big ? ' wk-card-big' : ''}`}>
       <svg className="wk-trace" viewBox="0 0 320 44" preserveAspectRatio="none" aria-hidden="true">
         <path d={trace(p.slug)} pathLength={1} />
       </svg>
@@ -94,7 +74,7 @@ function FlagCard({ p, n, big }: { p: WorkItem; n: number; big?: boolean }) {
         </div>
       </div>
       <span className="wk-go" aria-hidden="true">→</span>
-    </Link>
+    </SpotLink>
   );
 }
 

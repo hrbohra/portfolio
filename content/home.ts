@@ -23,12 +23,75 @@ export const hero: { kicker: string; title: Voiced; sub: Voiced } = {
   },
 };
 
-export const proof: Voiced[] = [
-  { plain: '6,400 products live', eng: '221kB cart JS, down from 17.5MB' },
-  { plain: '1,000+ customers served', eng: '131 tests plus a written threat model' },
-  { plain: '3 startups, sole or founding engineer', eng: '12-source ETL, zero errors' },
-  { plain: '0 orders lost, ever', eng: '25/25 evals passing' },
+/** Proof readouts: a big value and a short label, in each voice. */
+export const proof: { v: Voiced; l: Voiced }[] = [
+  { v: { plain: '6,400', eng: '221kB' }, l: { plain: 'products live', eng: 'cart JS, down from 17.5MB' } },
+  { v: { plain: '1,000+', eng: '131' }, l: { plain: 'customers served', eng: 'tests plus a written threat model' } },
+  { v: { plain: '3', eng: '12' }, l: { plain: 'startups, sole or founding engineer', eng: 'source ETL, zero errors' } },
+  { v: { plain: '0', eng: '25/25' }, l: { plain: 'orders lost, ever', eng: 'evals passing' } },
 ];
+
+/** Hero side panel: what is true right now. */
+export const now: { k: string; v: Voiced; href?: string }[] = [
+  {
+    k: 'now',
+    v: { plain: 'Founding engineer at Nextus, identity before signup', eng: 'Nextus gateway: Node, Postgres/Prisma, Redis, OTP claim state machine' },
+  },
+  {
+    k: 'in production',
+    v: { plain: 'cwtchcomfort.com: 486k requests in 30 days', eng: 'cwtchcomfort.com: 486k requests / 30d, 0.42% server errors' },
+    href: '/work/cwtch-store/',
+  },
+  {
+    k: 'latest release',
+    v: { plain: "Voiceprint, open source: an AI that writes in a brand's voice", eng: 'Voiceprint: stylometry, held-out verification, 6/6 planted rules recovered' },
+    href: '/work/voiceprint/',
+  },
+  {
+    k: 'open to',
+    v: { plain: 'Full-time roles, UK. Replies within a day', eng: 'Full-stack, AI or forward-deployed roles, UK' },
+  },
+];
+
+/** How the work goes, in three steps. */
+export const approach: { k: string; t: string; d: Voiced }[] = [
+  {
+    k: '01',
+    t: 'Embed',
+    d: {
+      plain:
+        'I start where the work happens. I sold sofas on the Cwtch shop floor and worked a jewellers’ counter before writing a line of code for either.',
+      eng: 'Requirements from the floor, not the ticket: shadow the users, map the real workflow, find the failure that costs money.',
+    },
+  },
+  {
+    k: '02',
+    t: 'Build',
+    d: {
+      plain: 'Then I build the whole thing: the screens, the server, the data and the payments, so nothing falls between two people.',
+      eng: 'End to end in TypeScript and Python: Next.js and React Native front ends, NestJS or FastAPI services, Postgres, Stripe, LLM integrations.',
+    },
+  },
+  {
+    k: '03',
+    t: 'Prove',
+    d: {
+      plain: 'And I show it works with numbers, not adjectives: tests, evaluations and real production traffic.',
+      eng: 'Evidence in the repo: integration tests against real Postgres and Redis, eval suites in CI, Sentry, post-mortems and ADRs.',
+    },
+  },
+];
+
+export const cta: { title: Voiced; sub: Voiced } = {
+  title: {
+    plain: 'Need someone who owns it end to end?',
+    eng: 'Hiring a full-stack or AI engineer?',
+  },
+  sub: {
+    plain: 'I reply within a day. The quickest route is email.',
+    eng: 'CV, code and production numbers are all one click away.',
+  },
+};
 
 export interface HomeProject {
   name: string;
@@ -97,6 +160,9 @@ export const receipts: string[] = [
   '131 tests green',
   'cart JS 17.5MB → 221kB',
   '6,400 products indexed',
+  '486k requests, 0.42% errors',
+  '6/6 planted rules recovered',
+  '7,975 images classified for £0',
 ];
 
 export const statusStrip = {
